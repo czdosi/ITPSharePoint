@@ -28,6 +28,12 @@
 				   <option value="1">Show</option>
 				</field>
 				<field name="twitterName" type="text" default="" size="80" label="Twitter Name" description="Enter the name of your Twitter account." />
+				<field name="twitterRecommend" type="text" default="" size="80" label="Twitter Recommend" description="Enter the username of the related account." />
+                <field name="twitterHashtag" type="text" default="" size="80" label="Twitter Hashtags" description="Comma separated hashtags appended to tweet text." />
+                <field name="twitterSize" type="list" default="small" label="Twitter Button Size" description="Select the button size." >
+                   <option value="small">Small</option>
+                   <option value="large">Large</option>
+                </field>
 				<field name="twitterCounter" type="list" default="horizontal" label="Twitter Counter" description="Show or hide Twitter counter." >
 				   <option value="none">Hide</option>
 				   <option value="vertical">Vertical</option>
