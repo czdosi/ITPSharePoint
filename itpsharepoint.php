@@ -24,10 +24,10 @@ jimport('joomla.plugin.plugin');
  */
 class plgSystemITPSharePoint extends JPlugin {
     
-    private $locale = "en_US";
-    private $fbLocale = "en_US";
-    private $plusLocale = "en";
-    private $twitterLocale = "en";
+    private $locale         = "en_US";
+    private $fbLocale       = "en_US";
+    private $plusLocale     = "en";
+    private $twitterLocale  = "en";
     
     public function __construct($subject, $params){
         
@@ -331,7 +331,7 @@ $html .= '(function() {
                 $height = "25";
             }
             
-            $html = '<div class="itp-sharepoint-fbl">';
+            $html .= '<div class="itp-sharepoint-fbl">';
             
             switch($params->get("facebookLikeRenderer")) {
                 

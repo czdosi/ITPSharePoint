@@ -400,27 +400,27 @@
 	            </field>
 	            
             <field name="spacer10" type="spacer" class="text" label="############# PINTEREST SETTINGS #############" />
-                <field name="pinterestButton" type="radio" default="0" label="Pinterest Button" description="Show or hide Pinterest button." >
-                   <option value="0">Hide</option>
-                   <option value="1">Show</option>
-                </field>
-                <field name="pinterestType" type="list" default="horizontal" label="Pinterest Type" description="The type of the button." >
-                   <option value="horizontal">Horizontal</option>
-                   <option value="vertical">Vertical</option>
-                   <option value="none">None</option>
-                </field>
-                
-                <field name="spacer11" type="spacer" class="text" label="############# BUFFER SETTINGS #############" />
-                <field name="bufferButton" type="radio" default="0" label="Buffer Button" description="Show or hide BufferApp.com buttons." >
-                   <option value="0">Hide</option>
-                   <option value="1">Show</option>
-                </field>
-                <field name="bufferType" type="list" default="horizontal" label="Buffer Type" description="The type of the button." >
-                   <option value="horizontal">Horizontal</option>
-                   <option value="vertical">Vertical</option>
-                   <option value="none">None</option>
-                </field>
-                <field name="bufferTwitterName" type="text" default="" size="80" label="Twitter Username" description="Enter the name of your twitter account you want to be mentioned." />
+            <field name="pinterestButton" type="radio" default="0" label="Pinterest Button" description="Show or hide Pinterest button." >
+               <option value="0">Hide</option>
+               <option value="1">Show</option>
+            </field>
+            <field name="pinterestType" type="list" default="horizontal" label="Pinterest Type" description="The type of the button." >
+               <option value="horizontal">Horizontal</option>
+               <option value="vertical">Vertical</option>
+               <option value="none">None</option>
+            </field>
+            
+            <field name="spacer11" type="spacer" class="text" label="############# BUFFER SETTINGS #############" />
+            <field name="bufferButton" type="radio" default="0" label="Buffer Button" description="Show or hide BufferApp.com buttons." >
+               <option value="0">Hide</option>
+               <option value="1">Show</option>
+            </field>
+            <field name="bufferType" type="list" default="horizontal" label="Buffer Type" description="The type of the button." >
+               <option value="horizontal">Horizontal</option>
+               <option value="vertical">Vertical</option>
+               <option value="none">None</option>
+            </field>
+            <field name="bufferTwitterName" type="text" default="" size="80" label="Twitter Username" description="Enter the name of your twitter account you want to be mentioned." />
                 
 		  </fieldset>
 		  <fieldset name="advanced">
