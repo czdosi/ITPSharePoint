@@ -24,18 +24,20 @@ jimport('joomla.plugin.plugin');
  */
 class plgSystemITPSharePoint extends JPlugin {
     
+    private $locale = "en_US";
     private $fbLocale = "en_US";
+    private $plusLocale = "en";
+    private $twitterLocale = "en";
     
     public function __construct($subject, $params){
         
         parent::__construct($subject, $params);
     
-        if($this->params->get("fbDynamicLocale", 0)) {
+        // Get locale code automatically
+        if($this->params->get("dynamicLocale", 0)) {
             $lang = JFactory::getLanguage();
             $locale = $lang->getTag();
-            $this->fbLocale = str_replace("-","_",$locale);
-        } else {
-            $this->fbLocale = $this->params->get("fbLocale", "en_US");
+            $this->locale = str_replace("-","_",$locale);
         }
 
     }
@@ -130,9 +132,11 @@ class plgSystemITPSharePoint extends JPlugin {
         $html .= $this->getDigg($this->params, $url, $title);
         $html .= $this->getStumbpleUpon($this->params, $url, $title);
         $html .= $this->getLinkedIn($this->params, $url, $title);
-        $html .= $this->getReTweetMeMe($this->params, $url, $title);
         $html .= $this->getTumblr($this->params, $url, $title);
+        $html .= $this->getBuffer($this->params, $url, $title);
+        $html .= $this->getPinterest($this->params, $url, $title);
         $html .= $this->getReddit($this->params, $url, $title);
+        $html .= $this->getReTweetMeMe($this->params, $url, $title);
 
         $html .= $this->getFacebookLike($this->params, $url, $title);
         $html .= $this->getGooglePlusOne($this->params, $url, $title);
@@ -173,9 +177,18 @@ class plgSystemITPSharePoint extends JPlugin {
         
         $html = "";
         if($params->get("twitterButton")) {
+            
+            // Get locale code
+            if(!$params->get("dynamicLocale")) {
+                $this->twitterLocale = $params->get("twitterLanguage");
+            } else {
+                $locales = $this->getButtonsLocales($this->locale); 
+                $this->twitterLocale = JArrayHelper::getValue($locales, "twitter", "en");
+            }
+            
             $html .= '
             <div class="itp-sharepoint-tw">
-            	<a href="https://twitter.com/share" class="twitter-share-button" data-url="' . $url . '" data-text="' . $title . '" data-via="' . $params->get("twitterName") . '" data-lang="' . $params->get("twitterLanguage") . '" data-size="' . $params->get("twitterSize") . '" data-related="' . $params->get("twitterRecommend") . '" data-hashtags="' . $params->get("twitterHashtag") . '" data-count="' . $params->get("twitterCounter") . '">Tweet</a>
+            	<a href="https://twitter.com/share" class="twitter-share-button" data-url="' . $url . '" data-text="' . $title . '" data-via="' . $this->twitterLocale . '" data-lang="' . $params->get("twitterLanguage") . '" data-size="' . $params->get("twitterSize") . '" data-related="' . $params->get("twitterRecommend") . '" data-hashtags="' . $params->get("twitterHashtag") . '" data-count="' . $params->get("twitterCounter") . '">Tweet</a>
                 <script type="text/javascript">!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
             </div>
             ';
@@ -185,14 +198,22 @@ class plgSystemITPSharePoint extends JPlugin {
     }
     
     private function getGooglePlusOne($params, $url, $title){
-        $language = "";
-        
-        if($params->get("plusLocale")) {
-            $language = " {lang: '" . $params->get("plusLocale") . "'};";
-        }
         
         $html = "";
         if($params->get("plusButton")) {
+            
+            $language = "";
+        
+            // Get locale code
+            if(!$params->get("dynamicLocale")) {
+                $this->plusLocale = $params->get("plusLocale");
+            } else {
+                $locales = $this->getButtonsLocales($this->locale); 
+                $this->plusLocale = JArrayHelper::getValue($locales, "google", "en");
+            }
+            
+            $language = " {lang: '" . $this->plusLocale . "'};";
+            
             $html .= '<div class="itp-sharepoint-gone">';
             
             switch($params->get("plusRenderer")) {
@@ -292,6 +313,14 @@ $html .= '(function() {
         
         $html = "";
         if($params->get("facebookLikeButton")) {
+            
+            // Get locale code
+            if(!$params->get("dynamicLocale")) {
+                $this->fbLocale = $params->get("fbLocale");
+            } else {
+                $locales = $this->getButtonsLocales($this->locale); 
+                $this->fbLocale = JArrayHelper::getValue($locales, "facebook", "en_US");
+            }
             
             $faces = (!$params->get("facebookLikeFaces")) ? "false" : "true";
             
@@ -655,4 +684,227 @@ tweetmeme_source = "' . $params->get("twitterName") . '";
         
         return $html;
     }
+    
+    private function getBuffer($params, $url, $title){
+        
+        $html = "";
+        if($params->get("bufferButton")) {
+            
+            $html = '
+            <div class="itp-sharepoint-buffer">
+            <a href="http://bufferapp.com/add" class="buffer-add-button" data-text="' . $title . '" data-url="'.$url.'" data-count="'.$params->get("bufferType").'" data-via="'.$params->get("bufferTwitterName").'">Buffer</a><script type="text/javascript" src="http://static.bufferapp.com/js/button.js"></script>
+            </div>
+            ';
+        }
+        
+        return $html;
+    }
+    
+    private function getPinterest($params, $url, $title){
+        
+        $title = html_entity_decode($title,ENT_QUOTES, "UTF-8");
+        
+        $html = "";
+        if($params->get("pinterestButton")) {
+            
+            $html .= '<div class="itp-sharepoint-pinterest">';
+            
+            // Load the JS library
+            if($params->get("loadPinterestJsLib")) {
+                $html .= '<!-- Include ONCE for ALL buttons in the page -->
+<script type="text/javascript">
+(function() {
+    window.PinIt = window.PinIt || { loaded:false };
+    if (window.PinIt.loaded) return;
+    window.PinIt.loaded = true;
+    function async_load(){
+        var s = document.createElement("script");
+        s.type = "text/javascript";
+        s.async = true;
+        if (window.location.protocol == "https:")
+            s.src = "https://assets.pinterest.com/js/pinit.js";
+        else
+            s.src = "http://assets.pinterest.com/js/pinit.js";
+        var x = document.getElementsByTagName("script")[0];
+        x.parentNode.insertBefore(s, x);
+    }
+    if (window.attachEvent)
+        window.attachEvent("onload", async_load);
+    else
+        window.addEventListener("load", async_load, false);
+})();
+</script>
+';
+            }
+            
+$html .= '<!-- Customize and include for EACH button in the page -->
+<a href="http://pinterest.com/pin/create/button/?url=' . rawurlencode($url) . '&amp;description=' . rawurlencode($title) . '" class="pin-it-button" count-layout="'.$params->get("pinterestType").'">Pin It</a>';
+            $html .= '</div>';
+        }
+        
+        return $html;
+    }
+    
+     private function getButtonsLocales($locale) {
+        
+         // Default locales
+        $result = array(
+            "twitter"     => "en",
+        	"facebook"    => "en_US",
+        	"google"      => "en"
+        );
+        
+        // The locales map
+        $locales = array (
+            "en_US" => array(
+                "twitter"     => "en",
+            	"facebook"    => "en_US",
+            	"google"      => "en"
+            ),
+            "en_GB" => array(
+                "twitter"     => "en",
+            	"facebook"    => "en_GB",
+            	"google"      => "en_GB"
+            ),
+            "th_TH" => array(
+                "twitter"     => "th",
+            	"facebook"    => "th_TH",
+            	"google"      => "th"
+            ),
+            "ms_MY" => array(
+                "twitter"     => "msa",
+            	"facebook"    => "ms_MY",
+            	"google"      => "ms"
+            ),
+            "tr_TR" => array(
+                "twitter"     => "tr",
+            	"facebook"    => "tr_TR",
+            	"google"      => "tr"
+            ),
+            "hi_IN" => array(
+                "twitter"     => "hi",
+            	"facebook"    => "hi_IN",
+            	"google"      => "hi"
+            ),
+            "tl_PH" => array(
+                "twitter"     => "fil",
+            	"facebook"    => "tl_PH",
+            	"google"      => "fil"
+            ),
+            "zh_CN" => array(
+                "twitter"     => "zh-cn",
+            	"facebook"    => "zh_CN",
+            	"google"      => "zh"
+            ),
+            "ko_KR" => array(
+                "twitter"     => "ko",
+            	"facebook"    => "ko_KR",
+            	"google"      => "ko"
+            ),
+            "it_IT" => array(
+                "twitter"     => "it",
+            	"facebook"    => "it_IT",
+            	"google"      => "it"
+            ),
+            "da_DK" => array(
+                "twitter"     => "da",
+            	"facebook"    => "da_DK",
+            	"google"      => "da"
+            ),
+            "fr_FR" => array(
+                "twitter"     => "fr",
+            	"facebook"    => "fr_FR",
+            	"google"      => "fr"
+            ),
+            "pl_PL" => array(
+                "twitter"     => "pl",
+            	"facebook"    => "pl_PL",
+            	"google"      => "pl"
+            ),
+            "nl_NL" => array(
+                "twitter"     => "nl",
+            	"facebook"    => "nl_NL",
+            	"google"      => "nl"
+            ),
+            "id_ID" => array(
+                "twitter"     => "in",
+            	"facebook"    => "nl_NL",
+            	"google"      => "in"
+            ),
+            "hu_HU" => array(
+                "twitter"     => "hu",
+            	"facebook"    => "hu_HU",
+            	"google"      => "hu"
+            ),
+            "fi_FI" => array(
+                "twitter"     => "fi",
+            	"facebook"    => "fi_FI",
+            	"google"      => "fi"
+            ),
+            "es_ES" => array(
+                "twitter"     => "es",
+            	"facebook"    => "es_ES",
+            	"google"      => "es"
+            ),
+            "ja_JP" => array(
+                "twitter"     => "ja",
+            	"facebook"    => "ja_JP",
+            	"google"      => "ja"
+            ),
+            "nn_NO" => array(
+                "twitter"     => "no",
+            	"facebook"    => "nn_NO",
+            	"google"      => "no"
+            ),
+            "ru_RU" => array(
+                "twitter"     => "ru",
+            	"facebook"    => "ru_RU",
+            	"google"      => "ru"
+            ),
+            "pt_PT" => array(
+                "twitter"     => "pt",
+            	"facebook"    => "pt_PT",
+            	"google"      => "pt"
+            ),
+            "pt_BR" => array(
+                "twitter"     => "pt",
+            	"facebook"    => "pt_BR",
+            	"google"      => "pt"
+            ),
+            "sv_SE" => array(
+                "twitter"     => "sv",
+            	"facebook"    => "sv_SE",
+            	"google"      => "sv"
+            ),
+            "zh_HK" => array(
+                "twitter"     => "zh-tw",
+            	"facebook"    => "zh_HK",
+            	"google"      => "zh_HK"
+            ),
+            "zh_TW" => array(
+                "twitter"     => "zh-tw",
+            	"facebook"    => "zh_TW",
+            	"google"      => "zh_TW"
+            ),
+            "de_DE" => array(
+                "twitter"     => "de",
+            	"facebook"    => "de_DE",
+            	"google"      => "de"
+            ),
+            "bg_BG" => array(
+                "twitter"     => "en",
+            	"facebook"    => "bg_BG",
+            	"google"      => "bg"
+            ),
+            
+        );
+        
+        if(isset($locales[$locale])) {
+            $result = $locales[$locale];
+        }
+        
+        return $result;
+        
+    }
+    
 }

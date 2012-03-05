@@ -1,12 +1,17 @@
 ITPSharePoint Plugin for Joomla! 
 ==========================
-( Version 1.2 )
+( Version 1.3 )
 --------------------------
 
 
 
 Changelog
 ---------
+v1.3
+-----
+* Added Pinterest button
+* Added BufferApp.com button
+* Improved the languages
 
 v1.2
 -----
