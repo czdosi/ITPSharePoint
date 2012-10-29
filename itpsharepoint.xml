@@ -10,9 +10,15 @@
     <creationDate>26 October, 2012</creationDate>
     <description>PLG_SYSTEM_ITPSHAREPOINT_DESC</description>
     
+    <languages folder="language">
+        <language tag="en-GB">en-GB/en-GB.plg_system_itpsharepoint.ini</language>
+        <language tag="en-GB">en-GB/en-GB.plg_system_itpsharepoint.sys.ini</language>
+    </languages> 
+    
     <files>
         <filename plugin="itpsharepoint">itpsharepoint.php</filename>
 		<filename>style.css</filename>
+		<filename>shorturl.php</filename>
 		<filename>index.html</filename>
 		<filename>README.md</filename>
     </files>
@@ -420,7 +426,7 @@
                    <option value="24">PLG_SYSTEM_ITPSHAREPOINT_LARGE_20</option>
                 </field>
                 
-                <field name="gsAnnotation" type="list" default="bubble" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_SHARE_ANNOTATION" description="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_SHARE_ANNOTATION_DESC" >
+                <field name="gsAnnotation" type="list" default="vertical-bubble" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_SHARE_ANNOTATION" description="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_SHARE_ANNOTATION_DESC" >
                    <option value="bubble">PLG_SYSTEM_ITPSHAREPOINT_BUBBLE_HORIZONTAL</option>
                    <option value="vertical-bubble">PLG_SYSTEM_ITPSHAREPOINT_BUBBLE_VERTICAL</option>
                    <option value="inline">PLG_SYSTEM_ITPSHAREPOINT_INLINE</option>
