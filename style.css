@@ -17,11 +17,7 @@
     float:left;
     margin:10px;
 }
-.itp-sharepoint-digg{
-    float:left;
-    margin-right:15px;
-    margin-top:10px;
-}
+
 .itp-sharepoint-su{
     float:left;
     margin-right:14px;
@@ -40,10 +36,13 @@
     margin-top:10px;
 }
 
-.itp-sharepoint-retweetme{
+.itp-sharepoint-gshare{
     float:left;
+    margin-left:5px;
+    margin-right:10px;
     margin-top:10px;
 }
+
 
 .itp-sharepoint-reddit{
     float:left;

@@ -10,7 +10,7 @@
  * other free or open source software licenses.
  */
 
-// Check to ensure this file is included in Joomla!
+// no direct access
 defined('_JEXEC') or die;
 
 jimport('joomla.plugin.plugin');
@@ -20,35 +20,39 @@ jimport('joomla.plugin.plugin');
  *
  * @package		ITPrism Plugins
  * @subpackage	ITPSharePoint
- * @since 		1.5
  */
 class plgSystemITPSharePoint extends JPlugin {
     
     private $locale         = "en_US";
     private $fbLocale       = "en_US";
     private $plusLocale     = "en";
+    private $gshareLocale   = "en";
     private $twitterLocale  = "en";
+    private $currentView    = "";
+    private $currentTask    = "";
+    private $currentOption  = "";
+    
+    private $imgPattern     = '/src="([^"]*)"/i'; 
     
     public function __construct($subject, $params){
-        
         parent::__construct($subject, $params);
-    
-        // Get locale code automatically
-        if($this->params->get("dynamicLocale", 0)) {
-            $lang = JFactory::getLanguage();
-            $locale = $lang->getTag();
-            $this->locale = str_replace("-","_",$locale);
-        }
-
     }
     
     /**
      * Clen the meta data
      */
-    public function onAfterDispatch(){
+    public function onBeforeCompileHead(){
+        
+        $app = JFactory::getApplication();
+        /** @var $app JApplication **/
+
+        if($app->isAdmin()) {
+            return;
+        }
         
         $doc   = JFactory::getDocument();
-        /* @var $doc JDocumentHtml */
+        /** @var $doc JDocumentHtml **/
+        
         if($this->params->get("loadCss")) {
             $doc->addStyleSheet(JURI::root() . "plugins/system/itpsharepoint/style.css");
         }
@@ -68,7 +72,7 @@ class plgSystemITPSharePoint extends JPlugin {
     public function onAfterRender(){
         
         $app = JFactory::getApplication();
-        /* @var $app JApplication */
+        /** @var $app JApplication **/
 
         if($app->isAdmin()) {
             return;
@@ -76,22 +80,8 @@ class plgSystemITPSharePoint extends JPlugin {
         
         $buffer = JResponse::getBody();
 
-        // Generate the buttons
-        $buttons    = $this->getContent();
-        $buffer = str_replace("{itpsharepoint}", $buttons, $buffer);
-        JResponse::setBody($buffer);
-        
-    }
-    
-    
-    /**
-     * Generate content
-     * @return  string      Returns html code or empty string.
-     */
-    private function getContent(){
-        
-        $doc   = JFactory::getDocument();
-        /* @var $doc JDocumentHtml */
+        $doc     = JFactory::getDocument();
+        /** @var $doc JDocumentHtml **/
         $docType = $doc->getType();
         
         // Check document type
@@ -99,47 +89,86 @@ class plgSystemITPSharePoint extends JPlugin {
             return "";
         }
         
-        $currentOptions = JRequest::getCmd("option");
-        $currentView    = JRequest::getWord("view");
-
+        $this->currentView    = $app->input->get->get("view");
+        $this->currentTask    = $app->input->get->get("task");
+        $this->currentOption  = $app->input->get->get("option");
+        
+        if(!$this->isAllowed()) {
+            return;            
+        }
+      
+        // Load language file
+        $this->loadLanguage();
+        
+        // Get locale code automatically
+        if($this->params->get("dynamicLocale", 0)) {
+            $lang   = JFactory::getLanguage();
+            $locale = $lang->getTag();
+            $this->locale = str_replace("-","_",$locale);
+        }
+        
+        // Generate the buttons
+        $buttons    = $this->getContent();
+        $buffer     = str_replace("{itpsharepoint}", $buttons, $buffer);
+        JResponse::setBody($buffer);
+        
+    }
+    
+    private function isAllowed() {
+        
         // Parse the views where you want to put the buttons
         $displayIn = $this->params->get("displayIn");
         if(!empty($displayIn)) {
             $displayIn = str_replace("'",'"',$displayIn);
             $displayIn = explode(";",$displayIn);
             $displayInViews = array();
+            
+            // In JoomlaShopping task value is a view
+            if( (strcmp($this->currentOption, "com_jshopping") == 0) AND (strcmp($this->currentTask, "view") == 0) ) {
+                $this->currentView = "view";
+            }
+            
             foreach($displayIn as $item) {
                 $item = json_decode(trim($item),true);
-                
                 if(!empty($item)) {
-                    if($currentOptions == $item[0] AND $currentView != $item[1])  {
-                        return "";
+                    if($this->currentOption == $item[0] AND $this->currentView == $item[1])  {
+                        return true;
                     }
                 }
             }
         }
         
-        $url = JURI::getInstance();
-        $url = $url->toString();
-        $title  = $doc->getTitle();
-        $title  = htmlentities($title, ENT_QUOTES, "UTF-8");
+        return false;
+    }
+    
+    /**
+     * Generate content
+     * @return  string      Returns html code or empty string.
+     */
+    private function getContent(){
+        
+        $url    = JURI::getInstance()->toString();
+        $title  = JFactory::getDocument()->getTitle();
+        
+        // Convert the url to short one
+        if($this->params->get("shortener_service")) {
+            $url = $this->getShortUrl($url);
+        }
         
         // Start buttons box
         $html = '
         <div class="itp-sharepoint">';
         
         $html .= $this->getTwitter($this->params, $url, $title);
-        $html .= $this->getDigg($this->params, $url, $title);
-        $html .= $this->getStumbpleUpon($this->params, $url, $title);
-        $html .= $this->getLinkedIn($this->params, $url, $title);
-        $html .= $this->getTumblr($this->params, $url, $title);
+        $html .= $this->getStumbpleUpon($this->params, $url);
+        $html .= $this->getLinkedIn($this->params, $url);
         $html .= $this->getBuffer($this->params, $url, $title);
         $html .= $this->getPinterest($this->params, $url, $title);
         $html .= $this->getReddit($this->params, $url, $title);
-        $html .= $this->getReTweetMeMe($this->params, $url, $title);
-
-        $html .= $this->getFacebookLike($this->params, $url, $title);
-        $html .= $this->getGooglePlusOne($this->params, $url, $title);
+        $html .= $this->getTumblr($this->params, $url);
+        $html .= $this->getFacebookLike($this->params, $url);
+        $html .= $this->getGooglePlusOne($this->params, $url);
+        $html .= $this->getGoogleShare($this->params, $url);
         
         // Gets extra buttons
         $html   .= $this->getExtraButtons($this->params, $url, $title);
@@ -154,6 +183,254 @@ class plgSystemITPSharePoint extends JPlugin {
     }
     
     /**
+     * Get an image from VirtueMart product details
+     * @param array $uriParams
+     */
+    private function getVirtuemartImage($uriParams) {
+        
+        $image = "";
+        
+        if(!empty($uriParams["virtuemart_product_id"])) {
+
+            $db = JFactory::getDbo();
+            /** @var $db JDatabaseMySQLi **/
+            
+            $query = $db->getQuery(true);
+            
+            $query
+                ->select("#__virtuemart_medias.file_url")
+                ->from("#__virtuemart_medias")
+                ->join("RIGHT", "#__virtuemart_product_medias ON #__virtuemart_product_medias.virtuemart_media_id = #__virtuemart_medias.virtuemart_media_id")
+                ->where("#__virtuemart_product_medias.virtuemart_product_id=" . (int)$uriParams["virtuemart_product_id"]);
+              
+            $db->setQuery($query, 0, 1);
+            $fileURL = $db->loadResult();
+            
+            if(!empty($fileURL)) {
+                $image = JURI::base().$fileURL;
+            }
+            
+        }
+        
+        return $image;
+    }
+    
+	/**
+     * Get an image from Content article
+     * @param array $uriParams
+     */
+    private function getContentImage($uriParams) {
+        
+        $image = "";
+        
+        if(!empty($uriParams["id"])) {
+
+            $db = JFactory::getDbo();
+            /** @var $db JDatabaseMySQLi **/
+            
+            $query = $db->getQuery(true);
+            
+            $query
+                ->select("#__content.images")
+                ->from("#__content")
+                ->where("#__content.id=" . (int)$uriParams["id"]);
+              
+            $db->setQuery($query, 0, 1);
+            $params = $db->loadResult();
+            
+            if(!empty($params)) {
+                $params  = json_decode($params, true);
+                
+                $fileURL = JArrayHelper::getValue($params, "image_intro");
+                if(!empty($fileURL)) {
+                    $image   = JURI::base().$fileURL;
+                }
+            }
+            
+        }
+        
+        return $image;
+    }
+    
+	/**
+     * Get an image from K2 item
+     * @param array $uriParams
+     */
+    private function getK2Image($uriParams) {
+        
+        $image = "";
+        
+        if(!empty($uriParams["id"])) {
+            $uriPath  = "media/k2/items/cache/";
+            $k2Folder = JPATH_BASE.DIRECTORY_SEPARATOR."media".DIRECTORY_SEPARATOR."k2".DIRECTORY_SEPARATOR."items".DIRECTORY_SEPARATOR."cache".DIRECTORY_SEPARATOR;
+            $dir      = new DirectoryIterator($k2Folder);
+            
+            // Generate a file name
+            $filename = md5("Image".(int)$uriParams["id"])."_M.jpg";
+            
+            foreach ($dir as $fileinfo) {
+                if (!$fileinfo->isDot()) {
+                    $k2File = $fileinfo->getFilename();
+                    
+                    if(strcmp($k2File, $filename) == 0) {
+                        $image = JURI::base().$uriPath.$k2File;
+                        break;
+                    }
+                }
+            }
+            
+        }
+        
+        return $image;
+    }
+    
+    private function getJoomShoppingImage($uriParams) {
+        
+        $image = "";
+        
+        if(!empty($uriParams["product_id"])) {
+            
+            $db = JFactory::getDbo();
+            /** @var $db JDatabaseMySQLi **/
+            
+            $query = $db->getQuery(true);
+            
+            $query
+                ->select("image_name")
+                ->from("#__jshopping_products_images")
+                ->where("product_id=" . (int)$uriParams["product_id"])
+                ->order("ordering");
+              
+            $db->setQuery($query, 0, 1);
+            $imageName = $db->loadResult();
+            
+            if(!empty($imageName)) {
+                $config = JSFactory::getConfig();
+                $image  = $config->image_product_live_path."/".$imageName;
+            }
+            
+            
+        }
+        
+        return $image;
+    }
+    
+    private function getHikaShopImage($uriParams) {
+        
+        $image    = "";
+        
+        if(!empty($uriParams["cid"])) {
+            $db = JFactory::getDbo();
+            /** @var $db JDatabaseMySQLi **/
+            
+            $qiery = $db->getQuery(true);
+               
+            $qiery
+                ->select("#__hikashop_product.product_name, #__hikashop_product.product_page_title, #__hikashop_file.file_path")
+                ->from("#__hikashop_product")
+                ->join("LEFT", "#__hikashop_file ON #__hikashop_product.product_id = #__hikashop_file.file_ref_id")
+                ->where("#__hikashop_product.product_id=" . (int)$uriParams["cid"]);
+                  
+            $db->setQuery($qiery, 0, 1);
+            $result = $db->loadObject();
+            
+            if(!empty($result)) {
+                
+                // Get image
+                $config       = hikashop_config();
+                $uploadFolder = $config->get("uploadfolder");
+                $image = JURI::base().$uploadFolder.$result->file_path;
+            }
+        }
+        
+        return $image;
+    }
+    
+    private function getImage() {
+        
+        $uri        = JURI::getInstance();
+        $router     = JFactory::getApplication()->getRouter();
+        $uriParams  = $router->parse($uri);
+        
+    	static $result     = null;
+    	if(!is_null($result)) {
+    	    return $result;
+    	}
+    	
+    	switch($this->currentOption) {
+            case "com_content":
+            	if(strcmp($this->currentView, "article") == 0) {
+		            $result = $this->getContentImage($uriParams);
+            	} 
+            break;
+            	
+            case "com_k2":
+                if(strcmp($this->currentView, "item") == 0) {
+		            $result = $this->getK2Image($uriParams);
+                }
+                break;
+                
+            case "com_virtuemart":
+                if(strcmp($this->currentView, "productdetails") == 0) {
+                    $result = $this->getVirtuemartImage($uriParams);
+                }
+                break;
+            
+            case "com_jshopping":
+                if(strcmp($this->currentTask, "view") == 0) {
+                    $result = $this->getJoomShoppingImage($uriParams);
+                }
+                break;
+                
+            case "com_hikashop":
+                if(strcmp($this->currentView, "product") == 0) {
+                    $result = $this->getHikaShopImage($uriParams);
+                }
+                break;
+                    
+            default:
+                $result = "";
+                break;   
+        }
+        
+        return $result;
+        
+    }
+    
+	/**
+     * A method that make a long url to short url
+     * 
+     * @param string $link
+     * @param array $params
+     * @return string
+     */
+    private function getShortUrl($link){
+        
+        JLoader::register("ItpSharepointPluginShortUrl", dirname(__FILE__).DIRECTORY_SEPARATOR."shorturl.php");
+        $options = array(
+            "login"     => $this->params->get("shortener_login"),
+            "api_key"   => $this->params->get("shortener_api_key"),
+            "service"   => $this->params->get("shortener_service"),
+        );
+        $shortUrl 	= new ItpSharepointPluginShortUrl($link, $options);
+        $shortLink  = $shortUrl->getUrl();
+        
+        if(!$shortLink) {
+        	// Add logger
+            JLog::addLogger(
+                array(
+                    'text_file' => 'error.php',
+                 )
+            );
+            
+            JLog::add($shortUrl->getError(), JLog::ERROR);
+        }
+        
+        return $shortLink;
+            
+    }
+    
+    /**
      * Generate a code for the extra buttons
      */
     private function getExtraButtons($params, $url, $title) {
@@ -164,8 +441,8 @@ class plgSystemITPSharePoint extends JPlugin {
             $btnName = "ebuttons" . $i;
             $extraButton = $params->get($btnName, "");
             if(!empty($extraButton)) {
-                $extraButton = str_replace("{URL}", $url,$extraButton);
-                $extraButton = str_replace("{TITLE}", $title,$extraButton);
+                $extraButton = str_replace("{URL}", $url, $extraButton);
+                $extraButton = str_replace("{TITLE}", $title, $extraButton);
                 $html  .= $extraButton;
             }
         }
@@ -178,6 +455,8 @@ class plgSystemITPSharePoint extends JPlugin {
         $html = "";
         if($params->get("twitterButton")) {
             
+            $title  = htmlentities($title, ENT_QUOTES, "UTF-8");
+            
             // Get locale code
             if(!$params->get("dynamicLocale")) {
                 $this->twitterLocale = $params->get("twitterLanguage");
@@ -186,46 +465,60 @@ class plgSystemITPSharePoint extends JPlugin {
                 $this->twitterLocale = JArrayHelper::getValue($locales, "twitter", "en");
             }
             
-            $html .= '
-            <div class="itp-sharepoint-tw">
-            	<a href="https://twitter.com/share" class="twitter-share-button" data-url="' . $url . '" data-text="' . $title . '" data-via="' . $this->twitterLocale . '" data-lang="' . $params->get("twitterLanguage") . '" data-size="' . $params->get("twitterSize") . '" data-related="' . $params->get("twitterRecommend") . '" data-hashtags="' . $params->get("twitterHashtag") . '" data-count="' . $params->get("twitterCounter") . '">Tweet</a>
-                <script type="text/javascript">!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-            </div>
-            ';
+            $html = '
+             	<div class="itp-sharepoint-tw">
+                	<a href="https://twitter.com/share" class="twitter-share-button" data-url="' . $url . '" data-text="' . $title . '" data-via="' . $params->get("twitterName") . '" data-lang="' . $this->twitterLocale . '" data-size="' . $params->get("twitterSize") . '" data-related="' . $params->get("twitterRecommend") . '" data-hashtags="' . $params->get("twitterHashtag") . '" data-count="' . $params->get("twitterCounter") . '">Tweet</a>';
+            
+            if($params->get("load_twitter_library", 1)) {
+                $html .= '<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>';
+            }
+            
+            $html .='</div>';
         }
         
         return $html;
     }
     
-    private function getGooglePlusOne($params, $url, $title){
+    private function getGooglePlusOne($params, $url){
         
         $html = "";
         if($params->get("plusButton")) {
             
-            $language = "";
-        
             // Get locale code
             if(!$params->get("dynamicLocale")) {
-                $this->plusLocale = $params->get("plusLocale");
+                $this->plusLocale = $params->get("plusLocale", "en");
             } else {
                 $locales = $this->getButtonsLocales($this->locale); 
                 $this->plusLocale = JArrayHelper::getValue($locales, "google", "en");
             }
-            
-            $language = " {lang: '" . $this->plusLocale . "'};";
             
             $html .= '<div class="itp-sharepoint-gone">';
             
             switch($params->get("plusRenderer")) {
                 
                 case 1:
-                    $html .= $this->genGooglePlus($params, $url, $language);
+                    $html .= $this->genGooglePlus($params, $url);
                     break;
                     
                 default:
-                    $html .= $this->genGooglePlusHTML5($params, $url, $language);
+                    $html .= $this->genGooglePlusHTML5($params, $url);
                     break;
             }
+            
+            // Load the JavaScript asynchroning
+    		if($params->get("loadGoogleJsLib")) {
+      
+                $html .= '<script>';
+                $html .= ' window.___gcfg = {lang: "' . $this->plusLocale . '"};';
+                
+                $html .= '
+                  (function() {
+                    var po = document.createElement("script"); po.type = "text/javascript"; po.async = true;
+                    po.src = "https://apis.google.com/js/plusone.js";
+                    var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po, s);
+                  })();
+                </script>';
+    		}
             
           
             $html .= '</div>';
@@ -240,9 +533,8 @@ class plgSystemITPSharePoint extends JPlugin {
      * 
      * @param array $params
      * @param string $url
-     * @param string $language
      */
-    private function genGooglePlus($params, $url, $language) {
+    private function genGooglePlus($params, $url) {
         
         $annotation = "";
         if($params->get("plusAnnotation")) {
@@ -250,23 +542,6 @@ class plgSystemITPSharePoint extends JPlugin {
         }
         
         $html = '<g:plusone size="' . $params->get("plusType") . '" ' . $annotation . ' href="' . $url . '"></g:plusone>';
-
-        
-        // Load the JavaScript asynchroning
-		if($params->get("loadGooglePlusJsLib")) {
-  
-        $html .= '<script type="text/javascript">';
-        if($language) {
-           $html .= ' window.___gcfg = '.$language;
-        }
-
-$html .= '(function() {
-    var po = document.createElement("script"); po.type = "text/javascript"; po.async = true;
-    po.src = "https://apis.google.com/js/plusone.js";
-    var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po, s);
-  })();
-</script>';
-				}
 				
         return $html;
     }
@@ -277,9 +552,8 @@ $html .= '(function() {
      * 
      * @param array $params
      * @param string $url
-     * @param string $language
      */
-    private function genGooglePlusHTML5($params, $url, $language) {
+    private function genGooglePlusHTML5($params, $url) {
         
         $annotation = "";
         if($params->get("plusAnnotation")) {
@@ -287,43 +561,28 @@ $html .= '(function() {
         }
         
         $html = '<div class="g-plusone" data-size="' . $params->get("plusType") . '" ' . $annotation . ' data-href="' . $url . '"></div>';
-
-        // Load the JavaScript asynchroning
-		if($params->get("loadGooglePlusJsLib")) {
-      
-            $html .= '<script type="text/javascript">';
-            if($language) {
-               $html .= ' window.___gcfg = '.$language;
-            }
-            
-            $html .= '
-              (function() {
-                var po = document.createElement("script"); po.type = "text/javascript"; po.async = true;
-                po.src = "https://apis.google.com/js/plusone.js";
-                var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po, s);
-              })();
-            </script>';
-		}
     				
         return $html;
     }
     
     
-    private function getFacebookLike($params, $url, $title){
+    private function getFacebookLike($params, $url){
         
         $html = "";
         if($params->get("facebookLikeButton")) {
             
             // Get locale code
             if(!$params->get("dynamicLocale")) {
-                $this->fbLocale = $params->get("fbLocale");
+                $this->fbLocale = $params->get("fbLocale", "en_US");
             } else {
                 $locales = $this->getButtonsLocales($this->locale); 
                 $this->fbLocale = JArrayHelper::getValue($locales, "facebook", "en_US");
             }
             
+            // Faces
             $faces = (!$params->get("facebookLikeFaces")) ? "false" : "true";
             
+            // Layout Styles
             $layout = $params->get("facebookLikeType", "button_count");
             if(strcmp("box_count", $layout)==0){
                 $height = "80";
@@ -331,7 +590,8 @@ $html .= '(function() {
                 $height = "25";
             }
             
-            $html .= '<div class="itp-sharepoint-fbl">';
+            // Generate code
+            $html = '<div class="itp-sharepoint-fbl">';
             
             switch($params->get("facebookLikeRenderer")) {
                 
@@ -357,21 +617,17 @@ $html .= '(function() {
     private function genFacebookLikeIframe($params, $url, $layout, $faces, $height) {
         
         $html = '
-            <iframe src="http://www.facebook.com/plugins/like.php?';
+            <iframe src="//www.facebook.com/plugins/like.php?';
             
-            if($params->get("facebookLikeAppId")) {
-                $html .= 'app_id=' . $params->get("facebookLikeAppId"). '&amp;';
-            }
-            
-            $html .= 'href=' . rawurlencode($url) . '&amp;send=' . $params->get("facebookLikeSend",0). '&amp;locale=' . $this->fbLocale . '&amp;layout=' . $layout . '&amp;show_faces=' . $faces . '&amp;width=' . $params->get("facebookLikeWidth","450") . '&amp;action=' . $params->get("facebookLikeAction",'like') . '&amp;colorscheme=' . $params->get("facebookLikeColor",'light') . '&amp;height='.$height.'';
-            if($params->get("facebookLikeFont")){
-                $html .= "&amp;font=" . $params->get("facebookLikeFont");
-            }
-            if($params->get("facebookLikeAppId")){
-                $html .= "&amp;appId=" . $params->get("facebookLikeAppId");
-            }
-            $html .= '" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:' . $params->get("facebookLikeWidth", "450") . 'px; height:' . $height . 'px;" allowTransparency="true"></iframe>
-        ';
+        $html .= 'href=' . rawurlencode($url) . '&amp;send=' . $params->get("facebookLikeSend",0). '&amp;locale=' . $this->fbLocale . '&amp;layout=' . $layout . '&amp;show_faces=' . $faces . '&amp;width=' . $params->get("facebookLikeWidth","450") . '&amp;action=' . $params->get("facebookLikeAction",'like') . '&amp;colorscheme=' . $params->get("facebookLikeColor",'light') . '&amp;height='.$height.'';
+        if($params->get("facebookLikeFont")){
+            $html .= "&amp;font=" . $params->get("facebookLikeFont");
+        }
+        if($params->get("facebookLikeAppId")){
+            $html .= "&amp;appId=" . $params->get("facebookLikeAppId");
+        }
+
+        $html .= '" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:' . $params->get("facebookLikeWidth", "450") . 'px; height:' . $height . 'px;" allowTransparency="true"></iframe>';
             
         return $html;
     }
@@ -384,12 +640,21 @@ $html .= '(function() {
             $html .= '<div id="fb-root"></div>';
         }
         
-       if($params->get("facebookLoadJsLib", 1)) {
-            $html .= '<script type="text/javascript" src="http://connect.facebook.net/' . $this->fbLocale . '/all.js#xfbml=1';
-            if($params->get("facebookLikeAppId")){
-                $html .= '&amp;appId=' . $params->get("facebookLikeAppId"); 
-            }
-            $html .= '"></script>';
+        if($params->get("facebookLoadJsLib", 1)) {
+           $appId = "";
+           if($params->get("facebookLikeAppId")){
+               $appId = '&amp;appId=' . $params->get("facebookLikeAppId"); 
+           }
+            
+           $html .= ' 
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/' . $this->fbLocale . '/all.js#xfbml=1'.$appId.'";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, \'script\', \'facebook-jssdk\'));</script>';
+           
         }
         
         $html .= '
@@ -419,33 +684,33 @@ $html .= '(function() {
             $html .= '<div id="fb-root"></div>';
         }
                 
-       if($params->get("facebookLoadJsLib", 1)) {
-                   
-       $html .='
-<script type="text/javascript">(function(d, s, id) {
+        if($params->get("facebookLoadJsLib", 1)) {
+           $appId = "";
+           if($params->get("facebookLikeAppId")){
+                $appId = '&amp;appId=' . $params->get("facebookLikeAppId"); 
+            }
+                
+           $html .= ' 
+<script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) return;
   js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/' . $this->fbLocale . '/all.js#xfbml=1';
-               if($params->get("facebookLikeAppId")){
-                    $html .= '&amp;appId=' . $params->get("facebookLikeAppId"); 
-                }
-$html .= '"
+  js.src = "//connect.facebook.net/' . $this->fbLocale . '/all.js#xfbml=1'.$appId.'";
   fjs.parentNode.insertBefore(js, fjs);
-}(document, "script", "facebook-jssdk"));</script>
-                   ';
-                }
+}(document, \'script\', \'facebook-jssdk\'));</script>';
+               
+        }
+        
         $html .= '
-                <div 
-                class="fb-like" 
-                data-href="' . $url . '" 
-                data-send="' . $params->get("facebookLikeSend",0). '" 
-                data-layout="'.$layout.'" 
-                data-width="' . $params->get("facebookLikeWidth","450") . '" 
-                data-show-faces="' . $faces . '" 
-                data-colorscheme="' . $params->get("facebookLikeColor","light") . '" 
-                data-action="' . $params->get("facebookLikeAction",'like') . '"';
-                
+            <div 
+            class="fb-like" 
+            data-href="' . $url . '" 
+            data-send="' . $params->get("facebookLikeSend",0). '" 
+            data-layout="'.$layout.'" 
+            data-width="' . $params->get("facebookLikeWidth","450") . '" 
+            data-show-faces="' . $faces . '" 
+            data-colorscheme="' . $params->get("facebookLikeColor","light") . '" 
+            data-action="' . $params->get("facebookLikeAction",'like') . '"';
                 
         if($params->get("facebookLikeFont")){
             $html .= ' data-font="' . $params->get("facebookLikeFont") . '" ';
@@ -457,81 +722,22 @@ $html .= '"
         
     }
     
-    private function getDigg($params, $url, $title){
-        $title = html_entity_decode($title,ENT_QUOTES, "UTF-8");
-        
-        $html = "";
-        if($params->get("diggButton")) {
-            
-            $html .= '<div class="itp-sharepoint-digg">';
-            
-            // Load the JS library
-            if($params->get("loadDiggJsLib")) {
-                $html .= '<script type="text/javascript">
-(function() {
-var s = document.createElement(\'SCRIPT\'), s1 = document.getElementsByTagName(\'SCRIPT\')[0];
-s.type = \'text/javascript\';
-s.async = true;
-s.src = \'http://widgets.digg.com/buttons.js\';
-s1.parentNode.insertBefore(s, s1);
-})();
-</script>';
-            }
-            
-$html .= '<a 
-class="DiggThisButton '.$params->get("diggType","DiggCompact") . '"
-href="http://digg.com/submit?url=' . rawurlencode($url) . '&amp;title=' . rawurlencode($title) . '" rev="'.$params->get("diggTopic").'" >
-</a>';
-            $html .= '</div>';
-        }
-        
-        return $html;
-    }
-    
-    private function getStumbpleUpon($params, $url, $title){
-        
-        $html = "";
-        if($params->get("stumbleButton")) {
-            
-            $html = '
-            <div class="itp-sharepoint-su">
-            <script src="http://www.stumbleupon.com/hostedbadge.php?s=' . $params->get("stumbleType",1). '&amp;r=' . rawurlencode($url) . '"></script>
-            </div>
-            ';
-        }
-        
-        return $html;
-    }
-    
-    private function getLinkedIn($params, $url, $title){
+    private function getLinkedIn($params, $url){
         
         $html = "";
         if($params->get("linkedInButton")) {
             
             $html = '
-            <div class="itp-sharepoint-lin">
-            <script type="text/javascript" src="http://platform.linkedin.com/in.js"></script><script type="IN/Share" data-url="' . $url . '" data-counter="' . $params->get("linkedInType",'right'). '"></script>
+            <div class="itp-sharepoint-lin">';
+            
+            if($params->get("load_linkedin_library", 1)) {
+                $html .= '<script src="//platform.linkedin.com/in.js"></script>';
+            }
+            
+            $html .= '<script type="IN/Share" data-url="' . $url . '" data-counter="' . $params->get("linkedInType", 'right'). '"></script>
             </div>
             ';
-        }
-        
-        return $html;
-    }
-    
-    private function getReTweetMeMe($params, $url, $title){
-        
-        $html = "";
-        if($params->get("retweetmeButton")) {
-            
-            $html = '
-            <div class="itp-sharepoint-retweetme">
-            <script type="text/javascript">
-tweetmeme_url = "' . $url . '";
-tweetmeme_style = "' . $params->get("retweetmeType") . '";
-tweetmeme_source = "' . $params->get("twitterName") . '";
-</script>
-<script type="text/javascript" src="http://tweetmeme.com/i/scripts/button.js"></script>
-            </div>';
+
         }
         
         return $html;
@@ -542,13 +748,15 @@ tweetmeme_source = "' . $params->get("twitterName") . '";
         $html = "";
         if($params->get("redditButton")) {
             
+            $title  = htmlentities($title, ENT_QUOTES, "UTF-8");
+            
             $html .= '<div class="itp-sharepoint-reddit">';
             $redditType = $params->get("redditType");
             
-            $jsButtons = array(1,2,3);
+            $jsButtons = range(1, 9);
             
-            if(in_array($redditType,$jsButtons) ) {
-                $html .='<script type="text/javascript">
+            if(in_array($redditType, $jsButtons) ) {
+                $html .='<script>
   reddit_url = "'. $url . '";
   reddit_title = "'.$title.'";
   reddit_bgcolor = "'.$params->get("redditBgColor").'";
@@ -559,75 +767,74 @@ tweetmeme_source = "' . $params->get("twitterName") . '";
             switch($redditType) {
                 
                 case 1:
-                    $html .='<script type="text/javascript" src="http://www.reddit.com/static/button/button1.js"></script>';
+                    $html .='<script src="//www.reddit.com/static/button/button1.js"></script>';
                     break;
-    
                 case 2:
-                    $html .='<script type="text/javascript" src="http://www.reddit.com/static/button/button2.js"></script>';
+                    $html .='<script src="//www.reddit.com/static/button/button2.js"></script>';
                     break;
                 case 3:
-                    $html .='<script type="text/javascript" src="http://www.reddit.com/static/button/button3.js"></script>';
+                    $html .='<script src="//www.reddit.com/static/button/button3.js"></script>';
                     break;
                 case 4:
-                    $html .='<script type="text/javascript" src="http://www.reddit.com/buttonlite.js?i=0"></script>';
+                    $html .='<script src="//www.reddit.com/buttonlite.js?i=0"></script>';
                     break;
                 case 5:
-                    $html .='<script type="text/javascript" src="http://www.reddit.com/buttonlite.js?i=1"></script>';
+                    $html .='<script src="//www.reddit.com/buttonlite.js?i=1"></script>';
                     break;
                 case 6:
-                    $html .='<script type="text/javascript" src="http://www.reddit.com/buttonlite.js?i=2"></script>';
+                    $html .='<script src="//www.reddit.com/buttonlite.js?i=2"></script>';
                     break;
                 case 7:
-                    $html .='<script type="text/javascript" src="http://www.reddit.com/buttonlite.js?i=3"></script>';
+                    $html .='<script src="//www.reddit.com/buttonlite.js?i=3"></script>';
                     break;
                 case 8:
-                    $html .='<script type="text/javascript" src="http://www.reddit.com/buttonlite.js?i=4"></script>';
+                    $html .='<script src="//www.reddit.com/buttonlite.js?i=4"></script>';
                     break;
                 case 9:
-                    $html .='<script type="text/javascript" src="http://www.reddit.com/buttonlite.js?i=5"></script>';
+                    $html .='<script src="//www.reddit.com/buttonlite.js?i=5"></script>';
                     break;
                 case 10:
-                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="http://www.reddit.com/static/spreddit6.gif" alt="Submit to reddit" border="0" /> </a>';
+                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="//www.reddit.com/static/spreddit6.gif" alt="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SUBMIT_REDDIT").'" border="0" /> </a>';
                     break;
                 case 11:
-                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="http://www.reddit.com/static/spreddit1.gif" alt="Submit to reddit" border="0" /> </a>';
+                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="//www.reddit.com/static/spreddit1.gif" alt="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SUBMIT_REDDIT").'" border="0" /> </a>';
                     break;   
                 case 12:
-                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="http://www.reddit.com/static/spreddit2.gif" alt="Submit to reddit" border="0" /> </a>';
+                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="//www.reddit.com/static/spreddit2.gif" alt="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SUBMIT_REDDIT").'" border="0" /> </a>';
                     break;   
                 case 13:
-                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="http://www.reddit.com/static/spreddit3.gif" alt="Submit to reddit" border="0" /> </a>';
+                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="//www.reddit.com/static/spreddit3.gif" alt="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SUBMIT_REDDIT").'" border="0" /> </a>';
                     break;   
                 case 14:
-                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="http://www.reddit.com/static/spreddit4.gif" alt="Submit to reddit" border="0" /> </a>';
+                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="//www.reddit.com/static/spreddit4.gif" alt="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SUBMIT_REDDIT").'" border="0" /> </a>';
                     break;   
                 case 15:
-                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="http://www.reddit.com/static/spreddit5.gif" alt="Submit to reddit" border="0" /> </a>';
+                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="//www.reddit.com/static/spreddit5.gif" alt="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SUBMIT_REDDIT").'" border="0" /> </a>';
                     break;   
                 case 16:
-                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="http://www.reddit.com/static/spreddit8.gif" alt="Submit to reddit" border="0" /> </a>';
+                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="//www.reddit.com/static/spreddit8.gif" alt="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SUBMIT_REDDIT").'" border="0" /> </a>';
                     break;   
                 case 17:
-                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="http://www.reddit.com/static/spreddit9.gif" alt="Submit to reddit" border="0" /> </a>';
+                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="//www.reddit.com/static/spreddit9.gif" alt="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SUBMIT_REDDIT").'" border="0" /> </a>';
                     break;   
                 case 18:
-                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="http://www.reddit.com/static/spreddit10.gif" alt="Submit to reddit" border="0" /> </a>';
+                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="//www.reddit.com/static/spreddit10.gif" alt="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SUBMIT_REDDIT").'" border="0" /> </a>';
                     break;   
                 case 19:
-                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="http://www.reddit.com/static/spreddit11.gif" alt="Submit to reddit" border="0" /> </a>';
+                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="//www.reddit.com/static/spreddit11.gif" alt="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SUBMIT_REDDIT").'" border="0" /> </a>';
                     break;   
                 case 20:
-                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="http://www.reddit.com/static/spreddit12.gif" alt="Submit to reddit" border="0" /> </a>';
+                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="//www.reddit.com/static/spreddit12.gif" alt="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SUBMIT_REDDIT").'" border="0" /> </a>';
                     break;   
                 case 21:
-                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="http://www.reddit.com/static/spreddit13.gif" alt="Submit to reddit" border="0" /> </a>';
+                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="//www.reddit.com/static/spreddit13.gif" alt="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SUBMIT_REDDIT").'" border="0" /> </a>';
                     break;   
                 case 22:
-                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="http://www.reddit.com/static/spreddit14.gif" alt="Submit to reddit" border="0" /> </a>';
+                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url='. $url . '\'; return false"> <img src="//www.reddit.com/static/spreddit14.gif" alt="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SUBMIT_REDDIT").'" border="0" /> </a>';
                     break;   
                                     
                 default:
-                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url=' . $url . '\'; return false"> <img src="http://www.reddit.com/static/spreddit7.gif" alt="Submit to reddit" border="0" /> </a>';
+                    $html .='<a href="http://www.reddit.com/submit" onclick="window.location = \'http://www.reddit.com/submit?url=' . $url . '\'; return false"> <img src="//www.reddit.com/static/spreddit7.gif" alt="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SUBMIT_REDDIT").'" border="0" /> </a>';
                     break;
             }
             
@@ -638,7 +845,7 @@ tweetmeme_source = "' . $params->get("twitterName") . '";
         return $html;
     }
     
-    private function getTumblr($params, $url, $title){
+    private function getTumblr($params, $url){
             
         $html = "";
         if($params->get("tumblrButton")) {
@@ -646,40 +853,88 @@ tweetmeme_source = "' . $params->get("twitterName") . '";
             $html .= '<div class="itp-sharepoint-tbr">';
             
             if($params->get("loadTumblrJsLib")) {
-                $html .= '<script type="text/javascript" src="http://platform.tumblr.com/v1/share.js"></script>';
+                $html .= '<script src="//platform.tumblr.com/v1/share.js"></script>';
             }
             
             switch($params->get("tumblrType")) {
                 
                 case 1:
-                    $html .='<a href="http://www.tumblr.com/share" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:61px; height:20px; background:url(\'http://platform.tumblr.com/v1/share_2.png\') top left no-repeat transparent;">Share on Tumblr</a>';
+                    $html .='<a href="http://www.tumblr.com/share" title="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SHARE_THUMBLR").'" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url(\'//platform.tumblr.com/v1/share_2.png\') top left no-repeat transparent;">'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SHARE_THUMBLR").'</a>';
                     break;
 
                 case 2:
-                    $html .='<a href="http://www.tumblr.com/share" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:129px; height:20px; background:url(\'http://platform.tumblr.com/v1/share_3.png\') top left no-repeat transparent;">Share on Tumblr</a>';
+                    $html .='<a href="http://www.tumblr.com/share" title="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SHARE_THUMBLR").'" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:129px; height:20px; background:url(\'//platform.tumblr.com/v1/share_3.png\') top left no-repeat transparent;">'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SHARE_THUMBLR").'</a>';
                     break;
                 case 3:
-                    $html .='<a href="http://www.tumblr.com/share" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:20px; height:20px; background:url(\'http://platform.tumblr.com/v1/share_4.png\') top left no-repeat transparent;">Share on Tumblr</a>';
+                    $html .='<a href="http://www.tumblr.com/share" title="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SHARE_THUMBLR").'" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:20px; height:20px; background:url(\'//platform.tumblr.com/v1/share_4.png\') top left no-repeat transparent;">'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SHARE_THUMBLR").'</a>';
                     break;
                 case 4:
-                    $html .='<a href="http://www.tumblr.com/share" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:81px; height:20px; background:url(\'http://platform.tumblr.com/v1/share_1T.png\') top left no-repeat transparent;">Share on Tumblr</a>';
+                    $html .='<a href="http://www.tumblr.com/share" title="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SHARE_THUMBLR").'" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:81px; height:20px; background:url(\'//platform.tumblr.com/v1/share_1T.png\') top left no-repeat transparent;">'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SHARE_THUMBLR").'</a>';
                     break;
                 case 5:
-                    $html .='<a href="http://www.tumblr.com/share" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:61px; height:20px; background:url(\'http://platform.tumblr.com/v1/share_2T.png\') top left no-repeat transparent;">Share on Tumblr</a>';
+                    $html .='<a href="http://www.tumblr.com/share" title="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SHARE_THUMBLR").'" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url(\'//platform.tumblr.com/v1/share_2T.png\') top left no-repeat transparent;">'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SHARE_THUMBLR").'</a>';
                     break;
                 case 6:
-                    $html .='<a href="http://www.tumblr.com/share" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:129px; height:20px; background:url(\'http://platform.tumblr.com/v1/share_3T.png\') top left no-repeat transparent;">Share on Tumblr</a>';
+                    $html .='<a href="http://www.tumblr.com/share" title="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SHARE_THUMBLR").'" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:129px; height:20px; background:url(\'//platform.tumblr.com/v1/share_3T.png\') top left no-repeat transparent;">'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SHARE_THUMBLR").'</a>';
                     break;
                 case 7:
-                    $html .='<a href="http://www.tumblr.com/share" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:20px; height:20px; background:url(\'http://platform.tumblr.com/v1/share_4T.png\') top left no-repeat transparent;">Share on Tumblr</a>';
+                    $html .='<a href="http://www.tumblr.com/share" title="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SHARE_THUMBLR").'" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:20px; height:20px; background:url(\'//platform.tumblr.com/v1/share_4T.png\') top left no-repeat transparent;">'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SHARE_THUMBLR").'</a>';
                     break;   
                                     
                 default:
-                    $html .='<a href="http://www.tumblr.com/share" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:81px; height:20px; background:url(\'http://platform.tumblr.com/v1/share_1.png\') top left no-repeat transparent;">Share on Tumblr</a>';
+                    $html .='<a href="http://www.tumblr.com/share" title="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SHARE_THUMBLR").'" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:81px; height:20px; background:url(\'//platform.tumblr.com/v1/share_1.png\') top left no-repeat transparent;">'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_SHARE_THUMBLR").'</a>';
                     break;
             }
             
             $html .='</div>';
+        }
+        
+        return $html;
+    }
+    
+    private function getPinterest($params, $url, $title){
+        
+        $html = "";
+        if($params->get("pinterestButton")) {
+            
+            $image      = $this->getImage();
+            
+            $media = "";
+            if(!empty($image)) {
+                $media = "&amp;media=" . rawurlencode($image);
+            }
+            
+            $html .= '<div class="itp-sharepoint-pinterest">';
+            $html .= '<a href="http://pinterest.com/pin/create/button/?url=' . rawurlencode($url) . $media. '&amp;description=' . rawurlencode($title) . '" class="pin-it-button" count-layout="'.$params->get("pinterestType", "horizontal").'"><img border="0" src="//assets.pinterest.com/images/PinExt.png" title="'.JText::_("PLG_SYSTEM_ITPSHAREPOINT_PIN_IT").'" /></a>';
+            $html .= '</div>';
+            
+            // Load the JS library
+            if($params->get("loadPinterestJsLib")) {
+                $html .= '<script src="//assets.pinterest.com/js/pinit.js"></script>';
+            }
+        }
+        
+        return $html;
+    }
+    
+    private function getStumbpleUpon($params, $url){
+        
+        $html = "";
+        if($params->get("stumbleButton")) {
+            
+            $html = "
+            <div class=\"itp-sharepoint-su\">
+            <su:badge layout='" . $params->get("stumbleType", 1). "' location='".$url."'></su:badge>
+            </div>
+            
+            <script>
+              (function() {
+                var li = document.createElement('script'); li.type = 'text/javascript'; li.async = true;
+                li.src = ('https:' == document.location.protocol ? 'https:' : 'http:') + '//platform.stumbleupon.com/1/widgets.js';
+                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(li, s);
+              })();
+            </script>
+                ";
         }
         
         return $html;
@@ -690,9 +945,18 @@ tweetmeme_source = "' . $params->get("twitterName") . '";
         $html = "";
         if($params->get("bufferButton")) {
             
+            $title  = htmlentities($title, ENT_QUOTES, "UTF-8");
+            
+            $image   = $this->getImage();
+            
+            $picture = "";
+            if(!empty($image)) {
+                $picture = 'data-picture="'.$image.'"';
+            }
+            
             $html = '
             <div class="itp-sharepoint-buffer">
-            <a href="http://bufferapp.com/add" class="buffer-add-button" data-text="' . $title . '" data-url="'.$url.'" data-count="'.$params->get("bufferType").'" data-via="'.$params->get("bufferTwitterName").'">Buffer</a><script type="text/javascript" src="http://static.bufferapp.com/js/button.js"></script>
+            <a href="http://bufferapp.com/add" class="buffer-add-button" '.$picture.' data-text="' . $title . '" data-url="'.$url.'" data-count="'.$params->get("bufferType").'" data-via="'.$params->get("bufferTwitterName").'">Buffer</a><script src="//static.bufferapp.com/js/button.js"></script>
             </div>
             ';
         }
@@ -700,52 +964,7 @@ tweetmeme_source = "' . $params->get("twitterName") . '";
         return $html;
     }
     
-    private function getPinterest($params, $url, $title){
-        
-        $title = html_entity_decode($title,ENT_QUOTES, "UTF-8");
-        
-        $html = "";
-        if($params->get("pinterestButton")) {
-            
-            $html .= '<div class="itp-sharepoint-pinterest">';
-            
-            // Load the JS library
-            if($params->get("loadPinterestJsLib")) {
-                $html .= '<!-- Include ONCE for ALL buttons in the page -->
-<script type="text/javascript">
-(function() {
-    window.PinIt = window.PinIt || { loaded:false };
-    if (window.PinIt.loaded) return;
-    window.PinIt.loaded = true;
-    function async_load(){
-        var s = document.createElement("script");
-        s.type = "text/javascript";
-        s.async = true;
-        if (window.location.protocol == "https:")
-            s.src = "https://assets.pinterest.com/js/pinit.js";
-        else
-            s.src = "http://assets.pinterest.com/js/pinit.js";
-        var x = document.getElementsByTagName("script")[0];
-        x.parentNode.insertBefore(s, x);
-    }
-    if (window.attachEvent)
-        window.attachEvent("onload", async_load);
-    else
-        window.addEventListener("load", async_load, false);
-})();
-</script>
-';
-            }
-            
-$html .= '<!-- Customize and include for EACH button in the page -->
-<a href="http://pinterest.com/pin/create/button/?url=' . rawurlencode($url) . '&amp;description=' . rawurlencode($title) . '" class="pin-it-button" count-layout="'.$params->get("pinterestType").'">Pin It</a>';
-            $html .= '</div>';
-        }
-        
-        return $html;
-    }
-    
-     private function getButtonsLocales($locale) {
+    private function getButtonsLocales($locale) {
         
          // Default locales
         $result = array(
@@ -906,5 +1125,105 @@ $html .= '<!-- Customize and include for EACH button in the page -->
         return $result;
         
     }
+    
+    private function getGoogleShare($params, $url){
+        
+        $html = "";
+        if($params->get("gsButton")) {
+            
+            // Get locale code
+            if(!$params->get("dynamicLocale")) {
+                $this->gshareLocale = $params->get("gsLocale", "en");
+            } else {
+                $locales = $this->getButtonsLocales($this->locale); 
+                $this->gshareLocale = JArrayHelper::getValue($locales, "google", "en");
+            }
+            
+            $html .= '<div class="itp-sharepoint-gshare">';
+            
+            switch($params->get("gsRenderer")) {
+                
+                case 1:
+                    $html .= $this->genGoogleShare($params, $url);
+                    break;
+                    
+                default:
+                    $html .= $this->genGoogleShareHTML5($params, $url);
+                    break;
+            }
+            
+            // Load the JavaScript asynchroning
+        	if($params->get("loadGoogleJsLib")) {
+        
+                $html .= '<script>';
+                if($this->gshareLocale) {
+                   $html .= ' window.___gcfg = {lang: "'.$this->gshareLocale.'"}; ';
+                }
+                
+                $html .= '
+                  (function() {
+                    var po = document.createElement("script"); po.type = "text/javascript"; po.async = true;
+                    po.src = "https://apis.google.com/js/plusone.js";
+                    var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po, s);
+                  })();
+                </script>';
+            }
+          
+            $html .= '</div>';
+        }
+        
+        return $html;
+    }
+    
+    /**
+     * 
+     * Render the Google Share in standart syntax
+     * 
+     * @param array  $params
+     * @param string $url
+     * @param string $language
+     */
+    private function genGoogleShare($params, $url) {
+        
+        $annotation = "";
+        if($params->get("gsAnnotation")) {
+            $annotation = ' annotation="' . $params->get("gsAnnotation") . '"';
+        }
+        
+        $size = "";
+        if($params->get("gsAnnotation") != "vertical-bubble") {
+            $size = ' height="' . $params->get("gsType") . '" ';
+        }
+        
+        $html = '<g:plus action="share" ' . $annotation . $size . ' href="' . $url . '"></g:plus>';
+        
+        return $html;
+    }
+    
+    /**
+     * 
+     * Render the Google Share in HTML5 syntax
+     * 
+     * @param array $params
+     * @param string $url
+     * @param string $language
+     */
+    private function genGoogleShareHTML5($params, $url) {
+        
+        $annotation = "";
+        if($params->get("gsAnnotation")) {
+            $annotation = ' data-annotation="' . $params->get("gsAnnotation") . '"';
+        }
+        
+        $size = "";
+        if($params->get("gsAnnotation") != "vertical-bubble") {
+            $size = ' data-height="' . $params->get("gsType") . '" ';
+        }
+        
+        $html = '<div class="g-plus" data-action="share" ' . $annotation . $size . ' data-href="' . $url . '"></div>';
+
+        return $html;
+    }
+    
     
 }
