@@ -34,10 +34,6 @@ class plgSystemITPSharePoint extends JPlugin {
     
     private $imgPattern     = '/src="([^"]*)"/i'; 
     
-    public function __construct($subject, $params){
-        parent::__construct($subject, $params);
-    }
-    
     /**
      * Clen the meta data
      */
@@ -60,14 +56,15 @@ class plgSystemITPSharePoint extends JPlugin {
         // Remove the indicator in the site description.
         // That prevent putting the code into the meta tags
         $desc = $doc->getDescription();
-        $desc = str_replace("{itpsharepoint}", "", $desc);
-        $doc->setDescription($desc);
+        if(false !== strpos($desc, "{itpsharepoint}")) {
+            $desc = str_replace("{itpsharepoint}", "", $desc);
+            $doc->setDescription($desc);
+        }
         
     }
     
     /**
      * Add social buttons into the article
-     *
      */
     public function onAfterRender(){
         
@@ -82,9 +79,9 @@ class plgSystemITPSharePoint extends JPlugin {
 
         $doc     = JFactory::getDocument();
         /** @var $doc JDocumentHtml **/
-        $docType = $doc->getType();
         
         // Check document type
+        $docType = $doc->getType();
         if(strcmp("html", $docType) != 0){
             return "";
         }
@@ -110,9 +107,36 @@ class plgSystemITPSharePoint extends JPlugin {
         // Generate the buttons
         $buttons    = $this->getContent();
         $buffer     = str_replace("{itpsharepoint}", $buttons, $buffer);
+        
+        // Put namespace in the HTML element
+        if($this->params->get("facebookPutNamespace", 0) AND (1 == $this->params->get("facebookLikeRenderer", 2)) ) {
+            $buffer = $this->putNamespaces($buffer);
+        }
+        
         JResponse::setBody($buffer);
         
     }
+    
+	/**
+	 * 
+	 * Put namespace schema to the HTML tag if rendering by XFBML
+	 * @param string $buffer Output buffer
+	 */
+	private function putNamespaces($buffer) {
+	    
+	    $pattern = "/<html.*>/i";
+	    if(preg_match($pattern, $buffer, $matches)) {
+	        if(false === strpos($matches[0], 'http://ogp.me/ns/fb#')) {
+	            $string   = ' xmlns:fb="http://ogp.me/ns/fb#" ';
+        
+                $newHtmlAttr = '<html '.$string; 
+                $buffer      = str_replace("<html", $newHtmlAttr, $buffer);
+	        }
+	    }
+	    
+        return $buffer;
+	}
+	
     
     private function isAllowed() {
         
@@ -412,18 +436,27 @@ class plgSystemITPSharePoint extends JPlugin {
             "api_key"   => $this->params->get("shortener_api_key"),
             "service"   => $this->params->get("shortener_service"),
         );
-        $shortUrl 	= new ItpSharepointPluginShortUrl($link, $options);
-        $shortLink  = $shortUrl->getUrl();
+       
         
-        if(!$shortLink) {
-        	// Add logger
-            JLog::addLogger(
-                array(
-                    'text_file' => 'error.php',
-                 )
-            );
+        try {
             
-            JLog::add($shortUrl->getError(), JLog::ERROR);
+            $shortUrl 	= new ItpSharepointPluginShortUrl($link, $options);
+            $shortLink  = $shortUrl->getUrl();
+            
+            // Get original link
+            if(!$shortLink) {
+                $shortLink = $link;
+            } 
+            
+        } catch(Exception $e) {
+            
+            JLog::add($e->getMessage());
+            
+            // Get original link
+            if(!$shortLink) {
+                $shortLink = $link;
+            }
+                
         }
         
         return $shortLink;
@@ -459,7 +492,7 @@ class plgSystemITPSharePoint extends JPlugin {
             
             // Get locale code
             if(!$params->get("dynamicLocale")) {
-                $this->twitterLocale = $params->get("twitterLanguage");
+                $this->twitterLocale = $params->get("twitterLanguage", "en");
             } else {
                 $locales = $this->getButtonsLocales($this->locale); 
                 $this->twitterLocale = JArrayHelper::getValue($locales, "twitter", "en");

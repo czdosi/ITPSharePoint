@@ -6,6 +6,11 @@ ITPSharePoint Plugin for Joomla!
 Changelog
 ---------
 
+v1.5
+---------
+* Added option for adding Facebook Namespace, when the render type is XFBML.
+* Improved ShortURL class
+
 v1.4
 ---------
 * Added some new Twitter languages
