@@ -49,6 +49,19 @@ class plgSystemITPSharePoint extends JPlugin {
         $doc   = JFactory::getDocument();
         /** @var $doc JDocumentHtml **/
         
+        // Check document type
+        $docType = $doc->getType();
+        if(strcmp("html", $docType) != 0){
+            return "";
+        }
+        
+        $this->currentView    = $app->input->get("view");
+        $this->currentOption  = $app->input->get("option");
+       
+        if(!$this->isAllowed()) {
+            return;            
+        }
+        
         if($this->params->get("loadCss")) {
             $doc->addStyleSheet(JURI::root() . "plugins/system/itpsharepoint/style.css");
         }
@@ -75,8 +88,6 @@ class plgSystemITPSharePoint extends JPlugin {
             return;
         }
         
-        $buffer = JResponse::getBody();
-
         $doc     = JFactory::getDocument();
         /** @var $doc JDocumentHtml **/
         
@@ -86,9 +97,9 @@ class plgSystemITPSharePoint extends JPlugin {
             return "";
         }
         
-        $this->currentView    = $app->input->get->get("view");
-        $this->currentTask    = $app->input->get->get("task");
-        $this->currentOption  = $app->input->get->get("option");
+        $this->currentView    = $app->input->get("view");
+        $this->currentTask    = $app->input->get("task");
+        $this->currentOption  = $app->input->get("option");
         
         if(!$this->isAllowed()) {
             return;            
@@ -105,6 +116,8 @@ class plgSystemITPSharePoint extends JPlugin {
         }
         
         // Generate the buttons
+        $buffer = JResponse::getBody();
+        
         $buttons    = $this->getContent();
         $buffer     = str_replace("{itpsharepoint}", $buttons, $buffer);
         
