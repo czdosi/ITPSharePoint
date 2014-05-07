@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="2.5" type="plugin" group="system" method="upgrade">
+<extension version="3.2" type="plugin" group="system" method="upgrade">
     <name>PLG_SYSTEM_ITPSHAREPOINT</name>
     <author>Todor Iliev</author>
-    <copyright>Copyright (C) 2010 ITPrism.com. All rights reserved.</copyright>
+    <copyright>Copyright (C) 2014 ITPrism.com. All rights reserved.</copyright>
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-    <version>1.5</version>
-    <creationDate>30 April, 2013</creationDate>
-    <description>PLG_SYSTEM_ITPSHAREPOINT_DESC</description>
-    
-    <languages folder="language">
-        <language tag="en-GB">en-GB/en-GB.plg_system_itpsharepoint.ini</language>
-        <language tag="en-GB">en-GB/en-GB.plg_system_itpsharepoint.sys.ini</language>
-    </languages> 
+    <version>1.6</version>
+    <creationDate>07 May, 2014</creationDate>
+    <description><![CDATA[
+    <p><a href="http://itprism.com/free-joomla-extensions/social-marketing-seo/multi-share-point" target="_blank">ITPSharePoint</a> is a plugin that adds republish buttons of Twitter, Facebook, Google Plus, Google Share, LinkedIn, Stumbleupon, Reddit, Pinterest, BufferApp,...on your site. Just set a point of rendering <b>{itpsharepoint}</b>.</p>
+    <p><a href='http://itprism.com/help/31-itpsharepoint-documentation' target='_blank'>Read documentation</a> that will help you to setup the extensions.</p>
+    <p>Invest in the extension improvement. You can <a href="http://itprism.com/sponsorship" title="Sponsoring" target="_blank">sponsor the extension via SMS, PayPal or Bitcoin</a>.</p>
+    <p><a href="http://itprism.com/" target="_blank">Subscribe for the newsletter</a> to receive information about updates and new ITPrism extensions.</p>
+    <p>Please, <a href="http://extensions.joomla.org/extensions/social-web/social-share/social-multi-share/16643" target="_blank">vote for the extension</a> on Joomla! Extensions Directory</p>
+    ]]></description>
     
     <files>
         <filename plugin="itpsharepoint">itpsharepoint.php</filename>
@@ -21,109 +22,138 @@
 		<filename>shorturl.php</filename>
 		<filename>index.html</filename>
 		<filename>README.md</filename>
+		<filename>joomla2.js</filename>
+		<filename>joomla3.js</filename>
+
+		<folder>language</folder>
     </files>
     
     <help url="PLG_SYSTEM_ITPSHAREPOINT_HELP_URL"/>
     
     <config>
-		<fields name="params">
-			<fieldset name="basic">
-				<field name="spacer1" type="spacer" class="text" label="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_SETTINGS" />
-                <field name="twitterButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_BUTTON_DESC" >
-                   <option value="0">JHIDE</option>
-                   <option value="1">JSHOW</option>
+        <fields name="params">
+            <fieldset name="basic">
+
+                <field name="loadCss" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_LOAD_STYLE_CSS" description="PLG_SYSTEM_ITPSHAREPOINT_LOAD_STYLE_CSS_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field name="dynamicLocale" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_AUTO_LANGUAGE" description="PLG_SYSTEM_ITPSHAREPOINT_AUTO_LANGUAGE_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+
+            </fieldset>
+
+            <fieldset name="twitter_section" label="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_SETTINGS">
+                <field name="twitterButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
                 </field>
                 <field name="twitterName" type="text" default="" size="80" label="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_NAME" description="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_NAME_DESC" />
                 <field name="twitterRecommend" type="text" default="" size="80" label="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_RECOMMEND" description="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_RECOMMEND_DESC" />
                 <field name="twitterHashtag" type="text" default="" size="80" label="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_HASHTAGS" description="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_HASHTAGS_DESC" />
                 <field name="twitterSize" type="list" default="small" label="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_SIZE" description="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_SIZE_DESC" >
-                   <option value="small">PLG_SYSTEM_ITPSHAREPOINT_SMALL</option>
-                   <option value="large">PLG_SYSTEM_ITPSHAREPOINT_LARGE</option>
+                    <option value="small">PLG_SYSTEM_ITPSHAREPOINT_SMALL</option>
+                    <option value="large">PLG_SYSTEM_ITPSHAREPOINT_LARGE</option>
                 </field>
                 <field name="twitterCounter" type="list" default="vertical" label="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_COUNTER" description="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_COUNTER_DESC" >
-                   <option value="none">JHIDE</option>
-                   <option value="vertical">PLG_SYSTEM_ITPSHAREPOINT_VERTICAL</option>
-                   <option value="horizontal">PLG_SYSTEM_ITPSHAREPOINT_HORIZONTAL</option>
+                    <option value="none">JHIDE</option>
+                    <option value="vertical">PLG_SYSTEM_ITPSHAREPOINT_VERTICAL</option>
+                    <option value="horizontal">PLG_SYSTEM_ITPSHAREPOINT_HORIZONTAL</option>
                 </field>
                 <field name="twitterLanguage" type="list" default="en" label="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_LANGUAGE" description="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_LANGUAGE_DESC" >
-                   <option value="ar">PLG_SYSTEM_ITPSHAREPOINT_ARABIC</option>
-                   <option value="eu">PLG_SYSTEM_ITPSHAREPOINT_BASQUE</option>
-                   <option value="ca">PLG_SYSTEM_ITPSHAREPOINT_CATALAN</option>
-                   <option value="zh-cn">PLG_SYSTEM_ITPSHAREPOINT_CHINESE_ZH</option>
-                   <option value="zh-tw">PLG_SYSTEM_ITPSHAREPOINT_CHINESE_TW</option>
-                   <option value="cs">PLG_SYSTEM_ITPSHAREPOINT_CZECH</option>
-                   <option value="da">PLG_SYSTEM_ITPSHAREPOINT_DANISH</option>
-                   <option value="nl">PLG_SYSTEM_ITPSHAREPOINT_DUTCH</option>
-                   <option value="en">PLG_SYSTEM_ITPSHAREPOINT_ENGLISH</option>
-                   <option value="fa">PLG_SYSTEM_ITPSHAREPOINT_FARSI</option>
-                   <option value="fil">PLG_SYSTEM_ITPSHAREPOINT_FILIPINO</option>
-                   <option value="fr">PLG_SYSTEM_ITPSHAREPOINT_FRENCH_FR</option>
-                   <option value="fi">PLG_SYSTEM_ITPSHAREPOINT_FINNISH</option>
-                   <option value="de">PLG_SYSTEM_ITPSHAREPOINT_GERMAN</option>
-                   <option value="el">PLG_SYSTEM_ITPSHAREPOINT_GREEK</option>
-                   <option value="hi">PLG_SYSTEM_ITPSHAREPOINT_HINDI</option>
-                   <option value="hu">PLG_SYSTEM_ITPSHAREPOINT_HUNGARIAN</option>
-                   <option value="it">PLG_SYSTEM_ITPSHAREPOINT_ITALIAN</option>
-                   <option value="id">PLG_SYSTEM_ITPSHAREPOINT_INDONESIAN</option>
-                   <option value="uk">PLG_SYSTEM_ITPSHAREPOINT_UKRAINIAN</option>
-                   <option value="ur">PLG_SYSTEM_ITPSHAREPOINT_URDU</option>
-                   <option value="ko">PLG_SYSTEM_ITPSHAREPOINT_KOREAN</option>
-                   <option value="msa">PLG_SYSTEM_ITPSHAREPOINT_MALAY</option>
-                   <option value="ru">PLG_SYSTEM_ITPSHAREPOINT_RUSSIAN</option>
-                   <option value="es">PLG_SYSTEM_ITPSHAREPOINT_SPANISH</option>
-                   <option value="sv">PLG_SYSTEM_ITPSHAREPOINT_SWEDISH</option>
-                   <option value="no">PLG_SYSTEM_ITPSHAREPOINT_NORWEGIAN</option>
-                   <option value="pl">PLG_SYSTEM_ITPSHAREPOINT_POLISH</option>
-                   <option value="pt">PLG_SYSTEM_ITPSHAREPOINT_PORTUGUESE</option>
-                   <option value="th">PLG_SYSTEM_ITPSHAREPOINT_THAI</option>
-                   <option value="tr">PLG_SYSTEM_ITPSHAREPOINT_TURKISH</option>
-                   <option value="jp">PLG_SYSTEM_ITPSHAREPOINT_JAPANESE</option>
+                    <option value="ar">PLG_SYSTEM_ITPSHAREPOINT_ARABIC</option>
+                    <option value="eu">PLG_SYSTEM_ITPSHAREPOINT_BASQUE</option>
+                    <option value="ca">PLG_SYSTEM_ITPSHAREPOINT_CATALAN</option>
+                    <option value="zh-cn">PLG_SYSTEM_ITPSHAREPOINT_CHINESE_ZH</option>
+                    <option value="zh-tw">PLG_SYSTEM_ITPSHAREPOINT_CHINESE_TW</option>
+                    <option value="cs">PLG_SYSTEM_ITPSHAREPOINT_CZECH</option>
+                    <option value="da">PLG_SYSTEM_ITPSHAREPOINT_DANISH</option>
+                    <option value="nl">PLG_SYSTEM_ITPSHAREPOINT_DUTCH</option>
+                    <option value="en">PLG_SYSTEM_ITPSHAREPOINT_ENGLISH</option>
+                    <option value="fa">PLG_SYSTEM_ITPSHAREPOINT_FARSI</option>
+                    <option value="fil">PLG_SYSTEM_ITPSHAREPOINT_FILIPINO</option>
+                    <option value="fr">PLG_SYSTEM_ITPSHAREPOINT_FRENCH_FR</option>
+                    <option value="fi">PLG_SYSTEM_ITPSHAREPOINT_FINNISH</option>
+                    <option value="de">PLG_SYSTEM_ITPSHAREPOINT_GERMAN</option>
+                    <option value="el">PLG_SYSTEM_ITPSHAREPOINT_GREEK</option>
+                    <option value="hi">PLG_SYSTEM_ITPSHAREPOINT_HINDI</option>
+                    <option value="hu">PLG_SYSTEM_ITPSHAREPOINT_HUNGARIAN</option>
+                    <option value="it">PLG_SYSTEM_ITPSHAREPOINT_ITALIAN</option>
+                    <option value="id">PLG_SYSTEM_ITPSHAREPOINT_INDONESIAN</option>
+                    <option value="uk">PLG_SYSTEM_ITPSHAREPOINT_UKRAINIAN</option>
+                    <option value="ur">PLG_SYSTEM_ITPSHAREPOINT_URDU</option>
+                    <option value="ko">PLG_SYSTEM_ITPSHAREPOINT_KOREAN</option>
+                    <option value="msa">PLG_SYSTEM_ITPSHAREPOINT_MALAY</option>
+                    <option value="ru">PLG_SYSTEM_ITPSHAREPOINT_RUSSIAN</option>
+                    <option value="es">PLG_SYSTEM_ITPSHAREPOINT_SPANISH</option>
+                    <option value="sv">PLG_SYSTEM_ITPSHAREPOINT_SWEDISH</option>
+                    <option value="no">PLG_SYSTEM_ITPSHAREPOINT_NORWEGIAN</option>
+                    <option value="pl">PLG_SYSTEM_ITPSHAREPOINT_POLISH</option>
+                    <option value="pt">PLG_SYSTEM_ITPSHAREPOINT_PORTUGUESE</option>
+                    <option value="th">PLG_SYSTEM_ITPSHAREPOINT_THAI</option>
+                    <option value="tr">PLG_SYSTEM_ITPSHAREPOINT_TURKISH</option>
+                    <option value="jp">PLG_SYSTEM_ITPSHAREPOINT_JAPANESE</option>
                 </field>
-                <field name="spacer2" type="spacer" class="text" label="PLG_SYSTEM_ITPSHAREPOINT_TUMBLR_SETTINGS" />
-                <field name="tumblrButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_TUMBLR_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_TUMBLR_BUTTON_DESC" >
-                   <option value="0">JHIDE</option>
-                   <option value="1">JSHOW</option>
+
+                <field name="load_twitter_library" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_LOAD_LIBRARY" description="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_LOAD_LIBRARY_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+            </fieldset>
+
+            <fieldset name="thumblr_section" label="PLG_SYSTEM_ITPSHAREPOINT_TUMBLR_SETTINGS">
+                <field name="tumblrButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
                 </field>
                 <field name="tumblrType" type="list" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_TUMBLR_TYPE" description="PLG_SYSTEM_ITPSHAREPOINT_TUMBLR_TYPE_DESC" >
-                   <option value="0">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_1</option>
-                   <option value="1">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_2</option>
-                   <option value="2">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_3</option>
-                   <option value="3">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_4</option>
-                   <option value="4">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_5</option>
-                   <option value="5">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_6</option>
-                   <option value="6">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_7</option>
-                   <option value="7">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_8</option>
+                    <option value="0">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_1</option>
+                    <option value="1">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_2</option>
+                    <option value="2">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_3</option>
+                    <option value="3">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_4</option>
+                    <option value="4">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_5</option>
+                    <option value="5">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_6</option>
+                    <option value="6">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_7</option>
+                    <option value="7">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_8</option>
                 </field>
-                
-                <field name="spacer3" type="spacer" class="text" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_SETTINGS" />
-                <field name="facebookLikeButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_BUTTON_DESC" >
-                   <option value="0">JHIDE</option>
-                   <option value="1">JSHOW</option>
+                <field name="loadTumblrJsLib" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_TUMBLR_LOAD_JS" description="PLG_SYSTEM_ITPSHAREPOINT_TUMBLR_LOAD_JS_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+            </fieldset>
+
+            <fieldset name="facebook_like_section" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_SETTINGS">
+                <field name="facebookLikeButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
                 </field>
                 <field name="facebookLikeRenderer" type="list" default="2" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_RENDERER" description="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_RENDERER_DESC" >
-                   <option value="0">iframe</option>
-                   <option value="1">XFBML</option>
-                   <option value="2">HTML5</option>
+                    <option value="0">iframe</option>
+                    <option value="1">XFBML</option>
+                    <option value="2">HTML5</option>
                 </field>
                 <field name="facebookLikeAction" type="list" default="like" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_TEXT" description="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_TEXT_DESC" >
-                   <option value="like">PLG_SYSTEM_ITPSHAREPOINT_LIKE</option>
-                   <option value="recommend">PLG_SYSTEM_ITPSHAREPOINT_RECOMMEND</option>
+                    <option value="like">PLG_SYSTEM_ITPSHAREPOINT_LIKE</option>
+                    <option value="recommend">PLG_SYSTEM_ITPSHAREPOINT_RECOMMEND</option>
                 </field>
                 <field name="facebookLikeType" type="list" default="box_count" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_TYPE" description="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_TYPE_DESC" >
                     <option value="standard">PLG_SYSTEM_ITPSHAREPOINT_STANDARD</option>
-                   <option value="box_count">PLG_SYSTEM_ITPSHAREPOINT_BOX_COUNT</option>
-                   <option value="button_count">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_COUNT</option>
+                    <option value="box_count">PLG_SYSTEM_ITPSHAREPOINT_BOX_COUNT</option>
+                    <option value="button_count">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_COUNT</option>
+                    <option value="button">PLG_SYSTEM_ITPSHAREPOINT_BUTTON</option>
                 </field>
-                <field name="facebookLikeFaces" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_FACES" description="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_FACES_DESC" >
-                   <option value="0">JHIDE</option>
-                   <option value="1">JSHOW</option>
+                <field name="facebookLikeFaces" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_FACES" description="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_FACES_DESC" class="btn-group">
+                    <option value="0">JHIDE</option>
+                    <option value="1">JSHOW</option>
                 </field>
                 <field name="facebookLikeColor" type="list" default="light" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_COLOR" description="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_COLOR_DESC" >
-                   <option value="light">PLG_SYSTEM_ITPSHAREPOINT_LIGHT</option>
-                   <option value="dark">PLG_SYSTEM_ITPSHAREPOINT_DARK</option>
+                    <option value="light">PLG_SYSTEM_ITPSHAREPOINT_LIGHT</option>
+                    <option value="dark">PLG_SYSTEM_ITPSHAREPOINT_DARK</option>
                 </field>
                 <field name="facebookLikeFont" type="list" default="" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_FONT" description="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_FONT_DESC" >
-                   <option value=""></option>
+                    <option value="">PLG_SYSTEM_ITPSHAREPOINT_DEFAULT</option>
                     <option value="arial">arial</option>
                     <option value="lucida grande">lucida grande</option>
                     <option value="segoe ui">segoe ui</option>
@@ -241,91 +271,143 @@
                     <option value="yi_DE">PLG_SYSTEM_ITPSHAREPOINT_YIDDISH</option>
                     <option value="zu_ZA">PLG_SYSTEM_ITPSHAREPOINT_ZULU</option>
                 </field>
-                
-                <field name="spacer4" type="spacer" class="text" label="PLG_SYSTEM_ITPSHAREPOINT_STUMBLEUPON_SETTINGS" />
-                <field name="stumbleButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_STUMBLEUPON_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_STUMBLEUPON_BUTTON_DESC" >
-                   <option value="0">JHIDE</option>
-                   <option value="1">JSHOW</option>
-                </field>  
+
+                <field name="facebookKidDirectedSite" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_KID_DIRECTED_SITE" description="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_KID_DIRECTED_SITE_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+
+                <field name="facebookLikeAppId" type="text" default="" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_APP_ID" description="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_APP_ID_DESC" />
+                <field name="facebookLikeShare" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_SHARE_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_SHARE_BUTTON_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field name="facebookRootDiv" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_ROOT" description="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_ROOT_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field name="facebookPutNamespace" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_NAMESPACE" description="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_NAMESPACE_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field name="facebookLoadJsLib" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_LOAD_JS_LIB" description="PLG_SYSTEM_ITPSHAREPOINT_LOAD_JS_LIB_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+            </fieldset>
+
+            <fieldset name="stumbleupon_section" label="PLG_SYSTEM_ITPSHAREPOINT_STUMBLEUPON_SETTINGS">
+                <field name="stumbleButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
                 <field name="stumbleType" type="list" default="5" label="PLG_SYSTEM_ITPSHAREPOINT_STUMBLEUPON_TYPE" description="PLG_SYSTEM_ITPSHAREPOINT_STUMBLEUPON_TYPE_DESC" >
-                   <option value="1">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_1</option>
-                   <option value="2">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_2</option>
-                   <option value="3">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_3</option>
-                   <option value="4">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_4</option>
-                   <option value="5">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_5</option>
-                   <option value="6">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_6</option>
-                </field>  
-                
-                <field name="spacer5" type="spacer" class="text" label="PLG_SYSTEM_ITPSHAREPOINT_LINKEDIN_SETTINGS" />
-                <field name="linkedInButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_LINKEDIN_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_LINKEDIN_BUTTON_DESC" >
-                   <option value="0">JHIDE</option>
-                   <option value="1">JSHOW</option>
+                    <option value="1">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_1</option>
+                    <option value="2">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_2</option>
+                    <option value="3">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_3</option>
+                    <option value="4">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_4</option>
+                    <option value="5">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_5</option>
+                    <option value="6">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_6</option>
+                </field>
+            </fieldset>
+
+            <fieldset name="linkedin_section" label="PLG_SYSTEM_ITPSHAREPOINT_LINKEDIN_SETTINGS">
+                <field name="linkedInButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
                 </field>
                 <field name="linkedInType" type="list" default="top" label="PLG_SYSTEM_ITPSHAREPOINT_LINKEDIN_TYPE" description="PLG_SYSTEM_ITPSHAREPOINT_LINKEDIN_TYPE_DESC" >
-                   <option value="none">PLG_SYSTEM_ITPSHAREPOINT_COUNTER_NONE</option>
-                   <option value="top">PLG_SYSTEM_ITPSHAREPOINT_COUNTER_TOP</option>
-                   <option value="right">PLG_SYSTEM_ITPSHAREPOINT_COUNTER_RIGHT</option>
-                </field>  
-                
-                <field name="spacer6" type="spacer" class="text" label="PLG_SYSTEM_ITPSHAREPOINT_REDDIT_SETTINGS" />
-                <field name="redditButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_REDDIT_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_REDDIT_BUTTON_DESC" >
-                   <option value="0">JHIDE</option>
-                   <option value="1">JSHOW</option>
+                    <option value="none">PLG_SYSTEM_ITPSHAREPOINT_COUNTER_NONE</option>
+                    <option value="top">PLG_SYSTEM_ITPSHAREPOINT_COUNTER_TOP</option>
+                    <option value="right">PLG_SYSTEM_ITPSHAREPOINT_COUNTER_RIGHT</option>
+                </field>
+                <field name="linkedInLocale" type="list" default="en_US" label="PLG_SYSTEM_ITPSHAREPOINT_LANGUAGE" description="PLG_SYSTEM_ITPSHAREPOINT_LANGUAGE_DESC">
+                    <option value="en_US">PLG_SYSTEM_ITPSHAREPOINT_ENGLISH</option>
+                    <option value="es_LA">PLG_SYSTEM_ITPSHAREPOINT_SPANISH</option>
+                    <option value="de_DE">PLG_SYSTEM_ITPSHAREPOINT_GERMAN</option>
+                    <option value="fr_FR">PLG_SYSTEM_ITPSHAREPOINT_FRENCH</option>
+                    <option value="ru_RU">PLG_SYSTEM_ITPSHAREPOINT_RUSSIAN</option>
+                    <option value="it_IT">PLG_SYSTEM_ITPSHAREPOINT_ITALIAN</option>
+                    <option value="pt_BR">PLG_SYSTEM_ITPSHAREPOINT_PORTUGUESE</option>
+                    <option value="ro_RO">PLG_SYSTEM_ITPSHAREPOINT_ROMANIAN</option>
+                    <option value="tr_TR">PLG_SYSTEM_ITPSHAREPOINT_TURKISH</option>
+                    <option value="ja_JP">PLG_SYSTEM_ITPSHAREPOINT_JAPANESE</option>
+                    <option value="id_ID">PLG_SYSTEM_ITPSHAREPOINT_INDONESIAN</option>
+                    <option value="ms_MY">PLG_SYSTEM_ITPSHAREPOINT_MALAY</option>
+                    <option value="ko_KR">PLG_SYSTEM_ITPSHAREPOINT_KOREAN</option>
+                    <option value="sv_SE">PLG_SYSTEM_ITPSHAREPOINT_SWEDISH</option>
+                    <option value="cs_CZ">PLG_SYSTEM_ITPSHAREPOINT_CZECH</option>
+                    <option value="nl_NL">PLG_SYSTEM_ITPSHAREPOINT_DUTCH</option>
+                    <option value="pl_PL">PLG_SYSTEM_ITPSHAREPOINT_POLISH</option>
+                    <option value="no_NO">PLG_SYSTEM_ITPSHAREPOINT_NORWEGIAN</option>
+                    <option value="da_DK">PLG_SYSTEM_ITPSHAREPOINT_DANISH</option>
+                </field>
+                <field name="load_linkedin_library" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_LINKEDIN_LOAD_LIBRARY" description="PLG_SYSTEM_ITPSHAREPOINT_LINKEDIN_LOAD_LIBRARY_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+            </fieldset>
+
+            <fieldset name="reddit_section" label="PLG_SYSTEM_ITPSHAREPOINT_REDDIT_SETTINGS">
+                <field name="redditButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
                 </field>
                 <field name="redditType" type="list" default="3" label="PLG_SYSTEM_ITPSHAREPOINT_REDDIT_STYLE" description="PLG_SYSTEM_ITPSHAREPOINT_REDDIT_STYLE_DESC" >
-                   <option value="0">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_1</option>
-                   <option value="1">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_2</option>
-                   <option value="2">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_3</option>
-                   <option value="3">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_4</option>
-                   <option value="4">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_5</option>
-                   <option value="5">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_6</option>
-                   <option value="6">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_7</option>
-                   <option value="7">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_8</option>
-                   <option value="8">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_9</option>
-                   <option value="9">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_10</option>
-                   <option value="10">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_11</option>
-                   <option value="11">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_12</option>
-                   <option value="12">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_13</option>
-                   <option value="13">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_14</option>
-                   <option value="14">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_15</option>
-                   <option value="15">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_16</option>
-                   <option value="16">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_17</option>
-                   <option value="17">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_18</option>
-                   <option value="18">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_19</option>
-                   <option value="19">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_20</option>
-                   <option value="20">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_21</option>
-                   <option value="21">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_22</option>
-                   <option value="22">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_23</option>
+                    <option value="0">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_1</option>
+                    <option value="1">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_2</option>
+                    <option value="2">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_3</option>
+                    <option value="3">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_4</option>
+                    <option value="4">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_5</option>
+                    <option value="5">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_6</option>
+                    <option value="6">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_7</option>
+                    <option value="7">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_8</option>
+                    <option value="8">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_9</option>
+                    <option value="9">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_10</option>
+                    <option value="10">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_11</option>
+                    <option value="11">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_12</option>
+                    <option value="12">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_13</option>
+                    <option value="13">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_14</option>
+                    <option value="14">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_15</option>
+                    <option value="15">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_16</option>
+                    <option value="16">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_17</option>
+                    <option value="17">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_18</option>
+                    <option value="18">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_19</option>
+                    <option value="19">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_20</option>
+                    <option value="20">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_21</option>
+                    <option value="21">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_22</option>
+                    <option value="22">PLG_SYSTEM_ITPSHAREPOINT_BUTTON_23</option>
                 </field>
                 <field name="redditBgColor" type="text" default="" label="PLG_SYSTEM_ITPSHAREPOINT_REDDIT_BG_COLOR" description="PLG_SYSTEM_ITPSHAREPOINT_REDDIT_BG_COLOR_DESC" />
                 <field name="redditBorderColor" type="text" default="" label="PLG_SYSTEM_ITPSHAREPOINT_REDDIT_BORDER_COLOR" description="PLG_SYSTEM_ITPSHAREPOINT_REDDIT_BORDER_COLOR_DESC" />
-                <field name="redditNewTab" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_REDDIT_NEW_TAB" description="PLG_SYSTEM_ITPSHAREPOINT_REDDIT_NEW_TAB_DESC" >
-                   <option value="0">JNO</option>
-                   <option value="1">JYES</option>
+                <field name="redditNewTab" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_REDDIT_NEW_TAB" description="PLG_SYSTEM_ITPSHAREPOINT_REDDIT_NEW_TAB_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
                 </field>
-                
-                <field name="spacer7" type="spacer" class="text" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_ONE_SETTINGS" />
-                <field name="plusButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_ONE_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_ONE_BUTTON_DESC" >
-                   <option value="0">JHIDE</option>
-                   <option value="1">JSHOW</option>
+            </fieldset>
+
+            <fieldset name="google_one_section" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_ONE_SETTINGS">
+                <field name="plusButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
                 </field>
                 <field name="plusRenderer" type="list" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_ONE_RENDERER" description="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_ONE_RENDERER_DESC" >
-                   <option value="0">HTML5</option>
-                   <option value="1">PLG_SYSTEM_ITPSHAREPOINT_STANDARD</option>
+                    <option value="0">HTML5</option>
+                    <option value="1">PLG_SYSTEM_ITPSHAREPOINT_STANDARD</option>
                 </field>
                 <field name="plusType" type="list" default="tall" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_ONE_STYLE" description="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_ONE_STYLE_DESC" >
-                   <option value="small">PLG_SYSTEM_ITPSHAREPOINT_SMALL_15</option>
-                   <option value="standart">PLG_SYSTEM_ITPSHAREPOINT_STANDARD_24</option>
-                   <option value="medium">PLG_SYSTEM_ITPSHAREPOINT_MEDIUM_20</option>
-                   <option value="tall">PLG_SYSTEM_ITPSHAREPOINT_TALL_60</option>
+                    <option value="small">PLG_SYSTEM_ITPSHAREPOINT_SMALL_15</option>
+                    <option value="standart">PLG_SYSTEM_ITPSHAREPOINT_STANDARD_24</option>
+                    <option value="medium">PLG_SYSTEM_ITPSHAREPOINT_MEDIUM_20</option>
+                    <option value="tall">PLG_SYSTEM_ITPSHAREPOINT_TALL_60</option>
                 </field>
-                
+
                 <field name="plusAnnotation" type="list" default="" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_ONE_ANNOTATION" description="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_ONE_ANNOTATION_DESC" >
-                   <option value="">PLG_SYSTEM_ITPSHAREPOINT_BUBBLE</option>
-                   <option value="inline">PLG_SYSTEM_ITPSHAREPOINT_INLINE</option>
-                   <option value="none">PLG_SYSTEM_ITPSHAREPOINT_NONE</option>
+                    <option value="">PLG_SYSTEM_ITPSHAREPOINT_BUBBLE</option>
+                    <option value="inline">PLG_SYSTEM_ITPSHAREPOINT_INLINE</option>
+                    <option value="none">PLG_SYSTEM_ITPSHAREPOINT_NONE</option>
                 </field>
-                
+
                 <field name="plusLocale" type="list" default="en" label="PLG_SYSTEM_ITPSHAREPOINT_LANGUAGE" description="PLG_SYSTEM_ITPSHAREPOINT_LANGUAGE_DESC" >
                     <option value="ar">PLG_SYSTEM_ITPSHAREPOINT_ARABIC</option>
                     <option value="bn">PLG_SYSTEM_ITPSHAREPOINT_BENGALI</option>
@@ -387,52 +469,68 @@
                     <option value="uk">PLG_SYSTEM_ITPSHAREPOINT_UKRAINIAN</option>
                     <option value="vi">PLG_SYSTEM_ITPSHAREPOINT_VIETNAMESE</option>
                 </field>
-                
-                <field name="spacer8" type="spacer" class="text" label="PLG_SYSTEM_ITPSHAREPOINT_PINTEREST_SETTINGS" />
-                <field name="pinterestButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_PINTEREST_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_PINTEREST_BUTTON_DESC" >
-                   <option value="0">JHIDE</option>
-                   <option value="1">JSHOW</option>
+
+                <field name="loadGoogleJsLib" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_LOAD_JS" description="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_LOAD_JS_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
                 </field>
-                <field name="pinterestType" type="list" default="vertical" label="PLG_SYSTEM_ITPSHAREPOINT_PINTEREST_TYPE" description="PLG_SYSTEM_ITPSHAREPOINT_PINTEREST_TYPE_DESC" >
-                   <option value="none">PLG_SYSTEM_ITPSHAREPOINT_NONE</option>
-                   <option value="horizontal">PLG_SYSTEM_ITPSHAREPOINT_HORIZONTAL</option>
-                   <option value="vertical">PLG_SYSTEM_ITPSHAREPOINT_VERTICAL</option>
+            </fieldset>
+
+            <fieldset name="pinterest_section" label="PLG_SYSTEM_ITPSHAREPOINT_PINTEREST_SETTINGS">
+                <field name="pinterestButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
                 </field>
-                
-                <field name="spacer9" type="spacer" class="text" label="PLG_SYSTEM_ITPSHAREPOINT_BUFFER_SETTINGS" />
-                <field name="bufferButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_BUFFER_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_BUFFER_BUTTON_DESC" >
-                   <option value="0">JHIDE</option>
-                   <option value="1">JSHOW</option>
+                <field name="pinterestImages" type="list" default="one" label="PLG_SYSTEM_ITPSHAREPOINT_PINTEREST_IMAGES" description="PLG_SYSTEM_ITPSHAREPOINT_PINTEREST_IMAGES_DESC" >
+                    <option value="one">PLG_SYSTEM_ITPSHAREPOINT_ONE_IMAGE</option>
+                    <option value="any">PLG_SYSTEM_ITPSHAREPOINT_ANY_IMAGE</option>
+                </field>
+                <field name="pinterestType" type="list" default="above" label="PLG_SYSTEM_ITPSHAREPOINT_PINTEREST_TYPE" description="PLG_SYSTEM_ITPSHAREPOINT_PINTEREST_TYPE_DESC" >
+                    <option value="none">PLG_SYSTEM_ITPSHAREPOINT_NOT_SHOWN</option>
+                    <option value="above">PLG_SYSTEM_ITPSHAREPOINT_ABOVE_BUTTON</option>
+                    <option value="beside">PLG_SYSTEM_ITPSHAREPOINT_BESIDE_BUTTON</option>
+                </field>
+                <field name="loadPinterestJsLib" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_PINTEREST_JS" description="PLG_SYSTEM_ITPSHAREPOINT_PINTEREST_LOAD_JS_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+            </fieldset>
+
+            <fieldset name="buffer_section" label="PLG_SYSTEM_ITPSHAREPOINT_BUFFER_SETTINGS">
+                <field name="bufferButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
                 </field>
                 <field name="bufferType" type="list" default="vertical" label="PLG_SYSTEM_ITPSHAREPOINT_BUFFER_TYPE" description="PLG_SYSTEM_ITPSHAREPOINT_BUFFER_TYPE_DESC" >
-                   <option value="none">PLG_SYSTEM_ITPSHAREPOINT_NONE</option>
-                   <option value="horizontal">PLG_SYSTEM_ITPSHAREPOINT_HORIZONTAL</option>
-                   <option value="vertical">PLG_SYSTEM_ITPSHAREPOINT_VERTICAL</option>
+                    <option value="none">PLG_SYSTEM_ITPSHAREPOINT_NONE</option>
+                    <option value="horizontal">PLG_SYSTEM_ITPSHAREPOINT_HORIZONTAL</option>
+                    <option value="vertical">PLG_SYSTEM_ITPSHAREPOINT_VERTICAL</option>
                 </field>
                 <field name="bufferTwitterName" type="text" default="" size="80" label="PLG_SYSTEM_ITPSHAREPOINT_BUFFER_USERNAME" description="PLG_SYSTEM_ITPSHAREPOINT_BUFFER_USERNAME_DESC" />
-                
-                <field name="spacer10" type="spacer" class="text" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_SHARE_SETTINGS" />
-                <field name="gsButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_SHARE_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_SHARE_BUTTON" >
-                   <option value="0">JHIDE</option>
-                   <option value="1">JSHOW</option>
+            </fieldset>
+
+            <fieldset name="google_share_section" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_SHARE_SETTINGS">
+                <field name="gsButton" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_BUTTON_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
                 </field>
                 <field name="gsRenderer" type="list" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_SHARE_RENDERER" description="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_SHARE_RENDERER_DESC" >
-                   <option value="0">HTML5</option>
-                   <option value="1">PLG_SYSTEM_ITPSHAREPOINT_STANDARD</option>
+                    <option value="0">HTML5</option>
+                    <option value="1">PLG_SYSTEM_ITPSHAREPOINT_STANDARD</option>
                 </field>
-                <field name="gsType" type="list" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_SHARE_STYLE" description="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_SHARE_STYLE_DESC" >
-                   <option value="15">PLG_SYSTEM_ITPSHAREPOINT_SMALL_15</option>
-                   <option value="0">PLG_SYSTEM_ITPSHAREPOINT_STANDARD</option>
-                   <option value="24">PLG_SYSTEM_ITPSHAREPOINT_LARGE_20</option>
+                <field name="gsType" type="list" default="15" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_SHARE_STYLE" description="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_SHARE_STYLE_DESC" >
+                    <option value="15">PLG_SYSTEM_ITPSHAREPOINT_SMALL_15</option>
+                    <option value="0">PLG_SYSTEM_ITPSHAREPOINT_STANDARD</option>
+                    <option value="24">PLG_SYSTEM_ITPSHAREPOINT_LARGE_20</option>
                 </field>
-                
+
                 <field name="gsAnnotation" type="list" default="vertical-bubble" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_SHARE_ANNOTATION" description="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_SHARE_ANNOTATION_DESC" >
-                   <option value="bubble">PLG_SYSTEM_ITPSHAREPOINT_BUBBLE_HORIZONTAL</option>
-                   <option value="vertical-bubble">PLG_SYSTEM_ITPSHAREPOINT_BUBBLE_VERTICAL</option>
-                   <option value="inline">PLG_SYSTEM_ITPSHAREPOINT_INLINE</option>
-                   <option value="none">PLG_SYSTEM_ITPSHAREPOINT_NONE</option>
+                    <option value="bubble">PLG_SYSTEM_ITPSHAREPOINT_BUBBLE_HORIZONTAL</option>
+                    <option value="vertical-bubble">PLG_SYSTEM_ITPSHAREPOINT_BUBBLE_VERTICAL</option>
+                    <option value="inline">PLG_SYSTEM_ITPSHAREPOINT_INLINE</option>
+                    <option value="none">PLG_SYSTEM_ITPSHAREPOINT_NONE</option>
                 </field>
-                
+
                 <field name="gsLocale" type="list" default="en" label="PLG_SYSTEM_ITPSHAREPOINT_LANGUAGE" description="PLG_SYSTEM_ITPSHAREPOINT_LANGUAGE_DESC" >
                     <option value="ar">PLG_SYSTEM_ITPSHAREPOINT_ARABIC</option>
                     <option value="bn">PLG_SYSTEM_ITPSHAREPOINT_BENGALI</option>
@@ -494,94 +592,46 @@
                     <option value="uk">PLG_SYSTEM_ITPSHAREPOINT_UKRAINIAN</option>
                     <option value="vi">PLG_SYSTEM_ITPSHAREPOINT_VIETNAMESE</option>
                 </field>
-		  </fieldset>
-		  
-		  <fieldset name="short_url_settings" label="PLG_SYSTEM_ITPSHAREPOINT_SHORTENER_SETTINGS">
-              <field name="shortener_service" type="list" default="" label="PLG_SYSTEM_ITPSHAREPOINT_SHORTENER_SERVICE" description="PLG_SYSTEM_ITPSHAREPOINT_SHORTENER_SERVICE_DESC" >
-                  <option value="">PLG_SYSTEM_ITPSHAREPOINT_NONE</option>
-                  <option value="google">goo.gl</option>
-                  <option value="bitly">bit.ly</option>
-                  <option value="bitlycom">bitly.com</option>
-                  <option value="jmp">j.mp</option>
-                  <option value="tinycc">tiny.cc</option>
-               </field>
-               <field name="shortener_login" type="text" default="" label="PLG_SYSTEM_ITPSHAREPOINT_LOGIN" description="PLG_SYSTEM_ITPSHAREPOINT_LOGIN_DESC"/>
-               <field name="shortener_api_key" type="text" default="" size="80" label="PLG_SYSTEM_ITPSHAREPOINT_API_KEY" description="PLG_SYSTEM_ITPSHAREPOINT_API_KEY_DESC"/>
-           </fieldset>
-           
-           <fieldset name="facebook_advanced_settings" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_ADVANCED_SETTINGS">
-               <field name="facebookLikeAppId" type="text" default="" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_APP_ID" description="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_APP_ID_DESC" />
-               <field name="facebookLikeSend" type="list" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_SEND_BUTTON" description="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_SEND_BUTTON" >
-                  <option value="0">JNO</option>
-                  <option value="1">JYES</option>
-               </field>
-               <field name="facebookRootDiv" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_ROOT" description="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_ROOT_DESC" >
-                   <option value="0">JNO</option>
-                   <option value="1">JYES</option>
+            </fieldset>
+
+            <fieldset name="floating_settings" label="PLG_SYSTEM_ITPSHAREPOINT_FLOATING_SETTINGS">
+                <field name="enable-floating" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_ENABLE_FLOATING" description="PLG_SYSTEM_ITPSHAREPOINT_ENABLE_FLOATING_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
                 </field>
-                <field name="facebookPutNamespace" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_NAMESPACE" description="PLG_SYSTEM_ITPSHAREPOINT_FACEBOOK_NAMESPACE_DESC" >
-                   <option value="0">JNO</option>
-                   <option value="1">JYES</option>
+                <field name="fpTop" type="text" default="30" label="PLG_SYSTEM_ITPSHAREPOINT_TOP" description="PLG_SYSTEM_ITPSHAREPOINT_FLOATING_TOP_DESC" />
+                <field name="fpLeft" type="text" default="50" label="PLG_SYSTEM_ITPSHAREPOINT_LEFT" description="PLG_SYSTEM_ITPSHAREPOINT_FLOATING_LEFT_DESC" />
+                <field name="resizeProtection" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_FLOATING_RESIZE_PROTECTION" description="PLG_SYSTEM_ITPSHAREPOINT_FLOATING_RESIZE_PROTECTION_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
                 </field>
-               <field name="facebookLoadJsLib" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_LOAD_JS_LIB" description="PLG_SYSTEM_ITPSHAREPOINT_LOAD_JS_LIB_DESC">
-                   <option value="0">JNO</option>
-                   <option value="1">JYES</option>
-               </field>
-           </fieldset>
-           
-           <fieldset name="additional_code" label="PLG_SYSTEM_ITPSHAREPOINT_ADDITIONAL_BUTTONS">
-               <field name="ebuttons1" type="textarea" default="" label="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE" description="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE_DESC" cols="50" rows="10" filter="raw" />
-               <field name="ebuttons2" type="textarea" default="" label="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE" description="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE_DESC" cols="50" rows="10" filter="raw" />
-               <field name="ebuttons3" type="textarea" default="" label="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE" description="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE_DESC" cols="50" rows="10" filter="raw" />
-               <field name="ebuttons4" type="textarea" default="" label="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE" description="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE_DESC" cols="50" rows="10" filter="raw" />
-               <field name="ebuttons5" type="textarea" default="" label="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE" description="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE_DESC" cols="50" rows="10" filter="raw" />
-           </fieldset>
-           
-           
-		  <fieldset name="advanced">
-            
-            <field name="spacer21" type="spacer" class="text" label="PLG_SYSTEM_ITPSHAREPOINT_TUMBLR_ADVANCED_SETTINGS" />
-            <field name="loadTumblrJsLib" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_TUMBLR_LOAD_JS" description="PLG_SYSTEM_ITPSHAREPOINT_TUMBLR_LOAD_JS_DESC">
-                <option value="0">JNO</option>
-                <option value="1">JYES</option>
-            </field>
-            
-            <field name="spacer22" type="spacer" class="text" label="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_ADVANCED_SETTINGS" />
-            <field name="load_twitter_library" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_LOAD_LIBRARY" description="PLG_SYSTEM_ITPSHAREPOINT_TWITTER_LOAD_LIBRARY_DESC">
-                <option value="0">JNO</option>
-                <option value="1">JYES</option>
-            </field>
-            
-            <field name="spacer23" type="spacer" class="text" label="PLG_SYSTEM_ITPSHAREPOINT_LINKEDIN_ADVANCED_SETTINGS" />
-            <field name="load_linkedin_library" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_LINKEDIN_LOAD_LIBRARY" description="PLG_SYSTEM_ITPSHAREPOINT_LINKEDIN_LOAD_LIBRARY_DESC">
-                <option value="0">JNO</option>
-                <option value="1">JYES</option>
-            </field>
-            
-            <field name="spacer24" type="spacer" class="text" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_ADVANCED_SETTINGS" />
-            <field name="loadGoogleJsLib" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_LOAD_JS" description="PLG_SYSTEM_ITPSHAREPOINT_GOOGLE_LOAD_JS_DESC">
-                <option value="0">JNO</option>
-                <option value="1">JYES</option>
-            </field>
-            
-            <field name="spacer25" type="spacer" class="text" label="PLG_SYSTEM_ITPSHAREPOINT_PINTEREST_ADVANCED_SETTINGS" />
-            <field name="loadPinterestJsLib" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_PINTEREST_JS" description="PLG_SYSTEM_ITPSHAREPOINT_PINTEREST_LOAD_JS_DESC">
-                <option value="0">JNO</option>
-                <option value="1">JYES</option>
-            </field>
-            
-            <field name="spacer18" type="spacer" class="text" label="PLG_SYSTEM_ITPSHAREPOINT_ITPSHAREPOINT_ADVANCED_SETTINGS" />
-            <field name="loadCss" type="radio" default="1" label="PLG_SYSTEM_ITPSHAREPOINT_ITPSHAREPOINT_LOAD_STYLE_CSS" description="PLG_SYSTEM_ITPSHAREPOINT_ITPSHAREPOINT_LOAD_STYLE_CSS_DESC">
-                <option value="0">JNO</option>
-                <option value="1">JYES</option>
-            </field>
-            <field name="dynamicLocale" type="radio" default="0" label="PLG_SYSTEM_ITPSHAREPOINT_ITPSHAREPOINT_AUTO_LANGUAGE" description="PLG_SYSTEM_ITPSHAREPOINT_ITPSHAREPOINT_AUTO_LANGUAGE_DESC">
-                <option value="0">JNO</option>
-                <option value="1">JYES</option>
-            </field>
-			<field name="displayIn" type="textarea" default="['com_content','article'];['com_k2','item']" label="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_IN" description="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_IN_DESC" cols="50" rows="10"/>
-			
-		  </fieldset>
-	   </fields>
+                <field name="fpMinWidth" type="text" default="1300" label="PLG_SYSTEM_ITPSHAREPOINT_MIN_WIDTH" description="PLG_SYSTEM_ITPSHAREPOINT_MIN_WIDTH_DESC" />
+            </fieldset>
+
+            <fieldset name="short_url_settings" label="PLG_SYSTEM_ITPSHAREPOINT_SHORTENER_SETTINGS">
+                <field name="shortener_service" type="list" default="" label="PLG_SYSTEM_ITPSHAREPOINT_SHORTENER_SERVICE" description="PLG_SYSTEM_ITPSHAREPOINT_SHORTENER_SERVICE_DESC" >
+                    <option value="">PLG_SYSTEM_ITPSHAREPOINT_NONE</option>
+                    <option value="google">goo.gl</option>
+                    <option value="bitly">bit.ly</option>
+                    <option value="bitlycom">bitly.com</option>
+                    <option value="jmp">j.mp</option>
+                    <option value="tinycc">tiny.cc</option>
+                </field>
+                <field name="shortener_login" type="text" default="" label="PLG_SYSTEM_ITPSHAREPOINT_LOGIN" description="PLG_SYSTEM_ITPSHAREPOINT_LOGIN_DESC"/>
+                <field name="shortener_api_key" type="text" default="" size="80" label="PLG_SYSTEM_ITPSHAREPOINT_API_KEY" description="PLG_SYSTEM_ITPSHAREPOINT_API_KEY_DESC"/>
+            </fieldset>
+
+            <fieldset name="additional_code" label="PLG_SYSTEM_ITPSHAREPOINT_ADDITIONAL_BUTTONS">
+                <field name="ebuttons1" type="textarea" default="" label="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE" description="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE_DESC" class="span6" cols="50" rows="10" filter="raw" />
+                <field name="ebuttons2" type="textarea" default="" label="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE" description="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE_DESC" class="span6" cols="50" rows="10" filter="raw" />
+                <field name="ebuttons3" type="textarea" default="" label="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE" description="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE_DESC" class="span6" cols="50" rows="10" filter="raw" />
+                <field name="ebuttons4" type="textarea" default="" label="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE" description="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE_DESC" class="span6" cols="50" rows="10" filter="raw" />
+                <field name="ebuttons5" type="textarea" default="" label="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE" description="PLG_SYSTEM_ITPSHAREPOINT_CUSTOM_BUTTON_CODE_DESC" class="span6" cols="50" rows="10" filter="raw" />
+            </fieldset>
+
+            <fieldset name="advanced">
+                <field name="displayOn" type="textarea" default="['com_content','article'];['com_k2','item']" label="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_ON" description="PLG_SYSTEM_ITPSHAREPOINT_DISPLAY_ON_DESC" cols="50" rows="10" class="input-xxlarge"/>
+            </fieldset>
+        </fields>
 	</config>
 </extension>

@@ -1,51 +1,65 @@
 @CHARSET "UTF-8";
+
+.itp-sharepoint {
+	padding: 0 0 5px 0;
+   text-align: center !important;
+   display: block !important;
+}
+
+.itp-sharepoint-floating {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    margin: 0 auto;
+    width: 80px;
+}
+
+.itp-sharepoint-left > div
+{
+    float: left;
+}
+
+.itp-sharepoint-left + div, .itp-sharepoint-left + p
+{
+    clear: both;
+}
+
 .itp-sharepoint{
     display:block !important;        
 }
 
 .itp-sharepoint-tw{
-    float:left;
     margin:10px 5px 0;
 }
 
 .itp-sharepoint-tbr{
-    float:left;
     margin:10px;
 }
 
 .itp-sharepoint-fbl{
-    float:left;
     margin:10px;
 }
 
 .itp-sharepoint-su{
-    float:left;
     margin-right:14px;
     margin-top:11px;
 }
 .itp-sharepoint-lin{
-    float:left;
-    margin-right:14px;
-    margin-top:10px;
+    margin: 10px 0 0 0;
 }
 
 .itp-sharepoint-gone{
-    float:left;
     margin-left:5px;
     margin-right:10px;
     margin-top:10px;
 }
 
 .itp-sharepoint-gshare{
-    float:left;
     margin-left:5px;
     margin-right:10px;
     margin-top:10px;
 }
 
-
 .itp-sharepoint-reddit{
-    float:left;
     margin-top:10px;
 }
 .itp-sharepoint-reddit a:hover{
@@ -54,12 +68,10 @@
 }
 
 .itp-sharepoint-pinterest {
-    float:left;
     margin-left:10px;
-    margin-top:10px;
+    margin-top:40px;
 }
 
 .itp-sharepoint-buffer {
-    float:left;
     margin-top:10px;
 }
