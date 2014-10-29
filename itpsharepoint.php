@@ -1087,6 +1087,11 @@ class plgSystemITPSharePoint extends JPlugin
                 "facebook" => "bg_BG",
                 "google"   => "bg"
             ),
+            "cs_CZ" => array(
+                "twitter"  => "cs",
+                "facebook" => "cs_CZ",
+                "google"   => "cs"
+            ),
 
         );
 
